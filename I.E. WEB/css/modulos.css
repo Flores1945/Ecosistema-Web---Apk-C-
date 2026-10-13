@@ -53,6 +53,11 @@ body {
     border-bottom: 2px solid var(--sky-light);
 }
 
+/* El último elemento de una sección no suma margen extra al padding */
+.modulo-section > :last-child {
+    margin-bottom: 0;
+}
+
 /* Panel de filtros */
 .filtros-panel {
     background: var(--card-bg);
@@ -292,7 +297,7 @@ body {
 .tabla-reportes-wrap {
     background: white;
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto;
     box-shadow: var(--sombra-md);
     margin-bottom: 20px;
 }
@@ -303,6 +308,7 @@ body {
 .tabla-asistencias-wrap table,
 .tabla-reportes-wrap table {
     width: 100%;
+    min-width: 600px;
     border-collapse: collapse;
 }
 

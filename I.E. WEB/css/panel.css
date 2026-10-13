@@ -2,21 +2,14 @@
 
 .layout {
     display: grid;
-    grid-template-columns: 280px 1fr 310px;
-    gap: 20px;
-    padding: 20px;
+    /* minmax(0, 1fr): evita que tablas anchas desborden la columna central */
+    grid-template-columns: 280px minmax(0, 1fr) 310px;
+    gap: 24px;
+    padding: 24px;
     max-width: 1680px;
     margin: 0 auto;
     min-height: calc(100vh - 80px);
-}
-
-@media (max-width: 1200px) {
-    .layout {
-        grid-template-columns: 260px 1fr;
-    }
-    .barra-utilidad {
-        display: none;
-    }
+    align-items: start;
 }
 
 /* 📁 BARRAS LATERALES */
@@ -467,4 +460,387 @@
 /* Ocultar elementos */
 .oculto {
     display: none !important;
+}
+
+/* =====================================================
+   COMPONENTES COMPARTIDOS (todas las páginas internas)
+   ===================================================== */
+
+/* Barras laterales: se quedan visibles al hacer scroll y son más compactas */
+.barra-izquierda,
+.barra-utilidad {
+    position: sticky;
+    top: 24px;
+}
+
+.barra-izquierda .btn-funcional,
+.barra-izquierda .btn-modulo {
+    margin-bottom: 0 !important;
+    padding: 9px 14px;
+    font-size: 0.88rem;
+    border-width: 1px !important;
+}
+
+.barra-izquierda .barra-subtitulo {
+    margin-top: 22px;
+}
+
+/* Tarjetas de resumen dentro del contenido (45 Atenciones, 98% Resueltos…) */
+.resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.resumen-card {
+    background: var(--sky-light);
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--primary-sky);
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+
+.resumen-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-xl);
+}
+
+.resumen-card .valor {
+    margin: 0 0 4px;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--primary-dark);
+}
+
+.resumen-card .label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.resumen-card.verde {
+    background: var(--verde-claro);
+    border-color: #a7f3d0;
+    border-top-color: var(--verde);
+}
+.resumen-card.verde .valor { color: #047857; }
+
+.resumen-card.rojo {
+    background: var(--rojo-claro);
+    border-color: #fecaca;
+    border-top-color: var(--rojo);
+}
+.resumen-card.rojo .valor { color: #b91c1c; }
+
+.resumen-card.amarillo {
+    background: var(--amarillo-claro);
+    border-color: #fde68a;
+    border-top-color: var(--amarillo);
+}
+.resumen-card.amarillo .valor { color: #b45309; }
+
+/* Estadísticas compactas de la barra derecha (Asistencias) */
+.estadisticas-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.estadistica-card {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--sky-light);
+    border-left: 4px solid var(--primary-sky);
+}
+
+.estadistica-card h3 {
+    margin: 0;
+    min-width: 2ch;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+.estadistica-card p {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.estadistica-card.verde { background: var(--verde-claro); border-left-color: var(--verde); }
+.estadistica-card.verde h3 { color: #047857; }
+.estadistica-card.amarillo { background: var(--amarillo-claro); border-left-color: var(--amarillo); }
+.estadistica-card.amarillo h3 { color: #b45309; }
+.estadistica-card.rojo { background: var(--rojo-claro); border-left-color: var(--rojo); }
+.estadistica-card.rojo h3 { color: #b91c1c; }
+
+/* Mensajes de estado vacíos: no mostrar barras de color sin texto */
+.estado-wrap p:empty,
+.estado-alumnos:empty,
+.estado-auditoria:empty {
+    display: none;
+}
+
+.estado-wrap:not(:has(p:not(:empty))) {
+    display: none;
+}
+
+/* Etiquetas de estado (Asignada, Mantenimiento, Operativo…) */
+.estado-ok,
+.estado-alerta,
+.estado-error {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.estado-ok { background: var(--verde-claro); color: #047857; }
+.estado-alerta { background: var(--amarillo-claro); color: #b45309; }
+.estado-error { background: var(--rojo-claro); color: #b91c1c; }
+
+/* Botones dentro de tablas (Editar / Eliminar) */
+.btn-tabla {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.btn-tabla + .btn-tabla {
+    margin-left: 6px;
+}
+
+.btn-tabla.editar {
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    border-color: var(--border-color);
+}
+
+.btn-tabla.editar:hover {
+    background: var(--primary-sky);
+    border-color: var(--primary-sky);
+    color: #ffffff;
+}
+
+.btn-tabla.eliminar {
+    background: var(--rojo-claro);
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.btn-tabla.eliminar:hover {
+    background: var(--rojo);
+    border-color: var(--rojo);
+    color: #ffffff;
+}
+
+.celda-acciones {
+    white-space: nowrap;
+}
+
+/* Tabla de movimientos (Reportes y Auditoría) */
+.celda-usuario {
+    font-weight: 600;
+}
+
+.etiqueta-cargo {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--sky-light);
+    color: var(--primary-dark);
+}
+
+.etiqueta-cargo.cargo-director { background: #fef3c7; color: #b45309; }
+.etiqueta-cargo.cargo-subdirector { background: #dbeafe; color: #1d4ed8; }
+.etiqueta-cargo.cargo-apafa { background: #dcfce7; color: #15803d; }
+.etiqueta-cargo.cargo-docente { background: #f3e8ff; color: #7e22ce; }
+.etiqueta-cargo.cargo-sub-docente { background: #cffafe; color: #0e7490; }
+.etiqueta-cargo.cargo-alumno { background: #e0f2fe; color: #0369a1; }
+.etiqueta-cargo.cargo-padre { background: #ffedd5; color: #c2410c; }
+
+.accion-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.leyenda-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.leyenda-punto {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Temas del foro */
+.tema-item {
+    transition: var(--transition-smooth);
+}
+
+.tema-item:hover {
+    background: var(--sky-light);
+}
+
+/* Filas de filtros consecutivas: separación entre ellas */
+.filtros-grid + .filtros-grid {
+    margin-top: 15px;
+}
+
+/* Pie de página: que se acomode cuando falta espacio */
+.pie-global {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+    /* el separador "|" queda suelto cuando el pie se parte en varias líneas */
+    .pie-global > span:nth-child(2) {
+        display: none;
+    }
+
+    .pie-global {
+        gap: 8px 14px;
+        padding: 16px;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+/* Tablet / laptop pequeña: menú + contenido, y la barra derecha pasa abajo */
+@media (max-width: 1200px) {
+    .layout {
+        grid-template-columns: 250px minmax(0, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .barra-utilidad {
+        grid-column: 1 / -1;
+        position: static;
+        max-height: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        align-items: start;
+        gap: 14px;
+    }
+
+    .barra-utilidad > h2 {
+        grid-column: 1 / -1;
+        margin: 6px 0 0;
+    }
+
+    .barra-utilidad .btn-salir {
+        grid-column: 1 / -1;
+        justify-self: start;
+        width: auto;
+        min-width: 200px;
+        margin-top: 6px;
+    }
+}
+
+/* Celular: una sola columna, primero el contenido y luego el menú */
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        padding: 14px;
+    }
+
+    .contenido {
+        order: 1;
+        padding: 0;
+    }
+
+    .barra-izquierda {
+        order: 2;
+        position: static;
+        max-height: none;
+    }
+
+    .barra-utilidad {
+        order: 3;
+    }
+
+    .barra-izquierda nav,
+    .barra-izquierda > div {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+    }
+
+    .barra-izquierda .btn-funcional,
+    .barra-izquierda .btn-modulo {
+        padding: 7px 12px;
+        font-size: 0.82rem;
+    }
+
+    .welcome-banner {
+        padding: 22px 20px;
+        border-radius: 16px;
+    }
+
+    .welcome-banner h1 {
+        font-size: 1.6rem;
+    }
+
+    .welcome-banner p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .layout {
+        padding: 10px;
+    }
+
+    .barra {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .welcome-banner h1 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Tablas sueltas dentro de una sección: se deslizan en pantallas pequeñas */
+.tabla-scroll {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.tabla-scroll > .modulo-table {
+    min-width: 600px;
 }

@@ -83,14 +83,24 @@
 .tabla-asistencias-wrap {
     background: white;
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto;
     box-shadow: var(--sombra-md);
     margin-bottom: 20px;
 }
 
 .tabla-asistencias {
     width: 100%;
+    min-width: 600px;
     border-collapse: collapse;
+}
+
+/* La tabla de indicadores va dentro de un panel, no necesita ancho mínimo */
+.resumen-diario .tabla-asistencias {
+    min-width: 0;
+    margin-top: 12px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .tabla-asistencias thead {

@@ -13,6 +13,10 @@
     --border-color: #bae6fd;
     --transition-smooth: all 0.25s ease;
 
+    /* Alias: nombres que usa el JS al generar HTML (foro, psicología) */
+    --borde: var(--border-color);
+    --texto-suave: var(--text-muted);
+
     /* Colores de estado */
     --verde: #10b981;
     --verde-claro: #d1fae5;
@@ -99,7 +103,8 @@ a:hover {
     box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
 }
 
-.btn-funcional.activo {
+.btn-funcional.activo,
+.btn-modulo.activo {
     background: var(--gradiente-primario) !important;
     color: white !important;
     border-color: transparent !important;
@@ -354,7 +359,7 @@ a:hover {
     transition: var(--transition-smooth);
 }
 
-.form-gruo textarea {
+.form-grupo textarea {
     resize: vertical;
     min-height: 80px;
 }

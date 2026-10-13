@@ -5,39 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aulas - I.E. Liceo Trujillo</title>
     <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/modulos.css">
 </head>
-<body class="pagina-modulo" data-pagina="aulas">
-    <header class="cabecera-modulo">
-        <div>
-            <p class="brand-bar">I.E. Liceo Trujillo</p>
-            <h1>Aulas y ambientes</h1>
-            <p class="subtitulo-modulo">Distribucion de pabellones y ocupacion</p>
-        </div>
-        <nav class="nav-global">
-            <a href="./panel.html">Panel</a>
-            <a class="activo" href="./aulas.html">Aulas</a>
-            <a href="./horarios.html">Horarios</a>
-            <a href="./alumnos.html">Alumnos</a>
-        </nav>
-    </header>
-    <section class="panel-modulo">
-        <div class="grid-info">
-            <article class="tarjeta-info"><h3>Pabellon A</h3><p>12 aulas · Primaria</p></article>
-            <article class="tarjeta-info"><h3>Pabellon B</h3><p>10 aulas · Secundaria</p></article>
-            <article class="tarjeta-info"><h3>Laboratorios</h3><p>3 ambientes</p></article>
-            <article class="tarjeta-info"><h3>Loza deportiva</h3><p>Uso compartido</p></article>
-        </div>
-        <table class="tabla-modulo">
-            <thead><tr><th>Ambiente</th><th>Capacidad</th><th>Turno</th><th>Estado</th></tr></thead>
-            <tbody>
-                <tr><td>Aula 101</td><td>32</td><td>Dia</td><td class="estado-ok">Asignada</td></tr>
-                <tr><td>Aula 205</td><td>35</td><td>Tarde</td><td class="estado-ok">Asignada</td></tr>
-                <tr><td>Sala de musica</td><td>28</td><td>Mixto</td><td class="estado-alerta">Mantenimiento</td></tr>
-            </tbody>
-        </table>
-    </section>
-    <footer class="pie-global"><a href="./panel.html">Volver al panel</a></footer>
+<body data-pagina="aulas">
+
+    <div class="layout">
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo activo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <main class="contenido">
+            <div class="welcome-banner">
+                <h1>🏫 Aulas y Ambientes</h1>
+                <p>Distribución de pabellones y ocupación</p>
+                <div class="badge-role">Servicios</div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>🏢 Resumen de Pabellones</h2>
+                <div class="modulo-grid">
+                    <article class="modulo-card">
+                        <h3>Pabellón A</h3>
+                        <p>12 aulas · Primaria</p>
+                    </article>
+                    <article class="modulo-card">
+                        <h3>Pabellón B</h3>
+                        <p>10 aulas · Secundaria</p>
+                    </article>
+                    <article class="modulo-card">
+                        <h3>Laboratorios</h3>
+                        <p>3 ambientes</p>
+                    </article>
+                    <article class="modulo-card">
+                        <h3>Losa deportiva</h3>
+                        <p>Uso compartido</p>
+                    </article>
+                </div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>📋 Ocupación de Ambientes</h2>
+                <div class="tabla-modulo-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ambiente</th>
+                                <th>Capacidad</th>
+                                <th>Turno</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Aula 101</td>
+                                <td>32</td>
+                                <td>Día</td>
+                                <td><span class="estado-ok">Asignada</span></td>
+                            </tr>
+                            <tr>
+                                <td>Aula 205</td>
+                                <td>35</td>
+                                <td>Tarde</td>
+                                <td><span class="estado-ok">Asignada</span></td>
+                            </tr>
+                            <tr>
+                                <td>Sala de música</td>
+                                <td>28</td>
+                                <td>Mixto</td>
+                                <td><span class="estado-alerta">Mantenimiento</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Acciones</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./horarios.html" class="quick-action-btn">⏰ Horarios</a>
+                <a href="./alumnos.html" class="quick-action-btn">🎒 Alumnos</a>
+                <a href="./calendario.html" class="quick-action-btn">📅 Calendario</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>Revisa el estado de cada ambiente antes de asignarlo a un horario.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./aulas.html">Aulas</a>
+        <a href="./horarios.html">Horarios</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
     <script type="module" src="../js/aulas.js"></script>
 </body>
 </html>

@@ -165,6 +165,52 @@ body {
     box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
 }
 
+/* Mensaje de estado bajo el formulario (#estadoLogin / #estadoRegistro) */
+.estado-form {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.estado-form:empty {
+    display: none;
+}
+
+/* Aviso flotante del registro (lo activa registro.js con la clase "mostrar") */
+.notificacion {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: min(380px, calc(100vw - 40px));
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: var(--primary-dark);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: var(--sombra-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-12px);
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+.notificacion.mostrar {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+.notificacion.ok { background: #059669; }
+.notificacion.error { background: #dc2626; }
+
 .error-message {
     color: var(--rojo);
     font-size: 0.8rem;
