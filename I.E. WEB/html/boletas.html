@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boletas - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/modulos.css">
+</head>
+<body data-pagina="boletas">
+
+    <div class="layout">
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo activo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <main class="contenido">
+            <div class="welcome-banner">
+                <h1>📈 Boletas de Notas</h1>
+                <p>Informes de progreso estudiantil</p>
+                <div class="badge-role">Sistema Académico</div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>📊 Generar Boletas</h2>
+                <div class="filtros-panel">
+                    <div class="filtros-grid">
+                        <div class="filtro-grupo">
+                            <label>Bimestre</label>
+                            <select>
+                                <option>I Bimestre</option>
+                                <option>II Bimestre</option>
+                                <option>III Bimestre</option>
+                                <option>IV Bimestre</option>
+                            </select>
+                        </div>
+                        <div class="filtro-grupo">
+                            <label>Grado</label>
+                            <select>
+                                <option>1° Primaria</option>
+                                <option>2° Primaria</option>
+                                <option>1° Secundaria</option>
+                                <option>2° Secundaria</option>
+                            </select>
+                        </div>
+                        <div class="filtro-grupo">
+                            <label>Sección</label>
+                            <select>
+                                <option>A</option>
+                                <option>B</option>
+                                <option>C</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filtros-acciones">
+                        <button class="btn-funcional-inline">📄 Generar PDF</button>
+                        <button class="btn-secundario">📊 Ver Vista Previa</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>📋 Boletas Recientes</h2>
+                <table class="modulo-table">
+                    <thead>
+                        <tr>
+                            <th>Alumno</th>
+                            <th>Grado</th>
+                            <th>Bimestre</th>
+                            <th>Promedio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td>2° Secundaria</td>
+                            <td>I Bimestre</td>
+                            <td>16.5</td>
+                            <td><span class="badge badge-success">Aprobado</span></td>
+                        </tr>
+                        <tr>
+                            <td>Maria García</td>
+                            <td>1° Secundaria</td>
+                            <td>I Bimestre</td>
+                            <td>14.2</td>
+                            <td><span class="badge badge-warning">Recuperación</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Acciones</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./notas.html" class="quick-action-btn">📝 Ver Notas</a>
+                <a href="./alumnos.html" class="quick-action-btn">🎒 Ver Alumnos</a>
+                <a href="./reportes.html" class="quick-action-btn">📊 Reportes</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>Las boletas se generan automáticamente cuando las notas están completas.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./notas.html">Notas</a>
+        <a href="./boletas.html">Boletas</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/boletas.js"></script>
+</body>
+</html>

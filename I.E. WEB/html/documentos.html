@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/modulos.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body data-pagina="documentos">
+
+    <div class="layout">
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo activo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <main class="contenido">
+            <div class="welcome-banner">
+                <h1>📄 Documentos</h1>
+                <p>Archivos y formatos institucionales</p>
+                <div class="badge-role">Administración</div>
+            </div>
+
+            <div class="filtros-panel">
+                <h2>🔍 Filtrar Documentos</h2>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label>Categoría</label>
+                        <select>
+                            <option value="">Todas</option>
+                            <option value="administrativo">Administrativo</option>
+                            <option value="academico">Académico</option>
+                            <option value="legal">Legal</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label>Año</label>
+                        <select>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtros-acciones">
+                    <button class="btn-funcional-inline" id="exportarDocumentosBtn">📊 Exportar Excel</button>
+                </div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>📋 Documentos Disponibles</h2>
+                <table class="modulo-table">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Categoría</th>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Reglamento Interno</td>
+                            <td>Legal</td>
+                            <td>01/01/2026</td>
+                            <td><a href="#" class="btn-funcional-inline">Descargar</a></td>
+                        </tr>
+                        <tr>
+                            <td>Calendario Escolar</td>
+                            <td>Administrativo</td>
+                            <td>01/03/2026</td>
+                            <td><a href="#" class="btn-funcional-inline">Descargar</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Acciones</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./inventario.html" class="quick-action-btn">📦 Inventario</a>
+                <a href="./reportes.html" class="quick-action-btn">📊 Reportes</a>
+                <a href="./comunicados.html" class="quick-action-btn">📢 Comunicados</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>Los documentos se organizan por categoría y año para fácil acceso.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./documentos.html">Documentos</a>
+        <a href="./inventario.html">Inventario</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/documentos.js"></script>
+</body>
+</html>

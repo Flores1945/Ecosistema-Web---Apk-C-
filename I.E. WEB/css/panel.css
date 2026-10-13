@@ -1,0 +1,470 @@
+/* 🌟 ESTILOS ESPECÍFICOS DEL PANEL - DISEÑO INSTITUCIONAL */
+
+.layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 310px;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1680px;
+    margin: 0 auto;
+    min-height: calc(100vh - 80px);
+}
+
+@media (max-width: 1200px) {
+    .layout {
+        grid-template-columns: 260px 1fr;
+    }
+    .barra-utilidad {
+        display: none;
+    }
+}
+
+/* 📁 BARRAS LATERALES */
+.barra {
+    background: var(--sidebar-bg);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--sombra-sm);
+    height: fit-content;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-bar {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.barra h2, .barra-subtitulo {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 18px 0 10px 0;
+    border-bottom: 2px solid var(--sky-light);
+    padding-bottom: 5px;
+}
+
+/* 🖥 CONTENIDO CENTRAL */
+.contenido {
+    background: transparent;
+    padding: 0 10px;
+}
+
+/* BANNER DE BIENVENIDA */
+.welcome-banner {
+    background: var(--gradiente-primario);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--sombra-lg);
+    margin-bottom: 25px;
+}
+
+.welcome-banner h1 {
+    margin: 0 0 8px 0;
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+
+.welcome-banner p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+.badge-role {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+    backdrop-filter: blur(5px);
+}
+
+/* 📢 ZONA DE COMUNICADOS */
+.announcement-box {
+    background: #ffffff;
+    border-left: 5px solid var(--primary-sky);
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 30px;
+    box-shadow: var(--sombra-md);
+    border: 1px solid var(--border-color);
+    border-left-width: 5px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.announcement-icon {
+    font-size: 1.8rem;
+    background: var(--sky-light);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.announcement-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+}
+
+.announcement-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* 👥 GRUPOS DE ACCESO */
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.group-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.04);
+    transition: var(--transition-smooth);
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-xl);
+    border-color: var(--primary-sky);
+}
+
+.group-card h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-dark);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.group-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.group-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.group-link-btn {
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.group-link-btn:hover {
+    background: var(--primary-sky);
+    color: white;
+}
+
+/* 🏛️ DIRECTORIO Y SERVICIOS INSTITUCIONALES */
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 35px 0 20px 0;
+    border-bottom: 2px solid var(--sky-light);
+    padding-bottom: 8px;
+}
+
+.modulos-titulo {
+    font-size: 1.3rem;
+    color: var(--primary-dark);
+    margin: 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.modulos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.modulo-icon-box {
+    font-size: 1.5rem;
+    background: var(--sky-light);
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.tarjeta-modulo:hover .modulo-icon-box {
+    transform: scale(1.1);
+    background: var(--primary-sky);
+}
+
+.modulo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* 📋 ESTILOS DE LA BARRA DERECHA PERSONALIZADA */
+.barra-utilidad {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.widget-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.03);
+}
+
+.widget-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.88rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.widget-card p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+/* Botones pequeños de accesos rápidos */
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    transition: var(--transition-smooth);
+}
+
+.quick-action-btn:hover {
+    background: var(--primary-sky);
+    color: white;
+}
+
+/* Lista de incidentes */
+.incident-item {
+    font-size: 0.8rem;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+}
+
+.incident-item:last-child {
+    border-bottom: none;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.72rem;
+}
+
+/* Mini Calendario / Agenda */
+.agenda-event {
+    background: var(--sky-light);
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid var(--primary-sky);
+}
+
+.agenda-event strong {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--primary-dark);
+}
+
+.agenda-event span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Clima local */
+.weather-box {
+    background: var(--gradiente-primario);
+    color: white;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.weather-info h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.weather-info p {
+    margin: 2px 0 0 0;
+    font-size: 0.75rem;
+    opacity: 0.9;
+    color: white !important;
+}
+
+.weather-icon {
+    font-size: 2rem;
+}
+
+/* Pie de página global */
+.pie-global {
+    background: white;
+    border-top: 1px solid var(--border-color);
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+}
+
+.pie-global a {
+    color: var(--primary-sky);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.pie-global a:hover {
+    text-decoration: underline;
+}
+
+/* Componentes adicionales */
+.resumen-diario {
+    background: var(--sky-light);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sky);
+    margin-bottom: 25px;
+}
+
+.resumen-diario h3 {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.resumen-diario p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.info-panel {
+    background: var(--sky-light);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sky);
+    margin-bottom: 20px;
+}
+
+.info-panel h3 {
+    color: var(--primary-dark);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.info-panel p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.exportar-panel {
+    background: var(--sky-light);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sky);
+    margin-bottom: 25px;
+}
+
+.exportar-panel h3 {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.exportar-panel p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.exportar-opciones {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Ocultar elementos */
+.oculto {
+    display: none !important;
+}

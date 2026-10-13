@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/modulos.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body data-pagina="inventario">
+
+    <div class="layout">
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo activo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <main class="contenido">
+            <div class="welcome-banner">
+                <h1>📦 Inventario</h1>
+                <p>Mobiliario, equipos y material educativo</p>
+                <div class="badge-role">Administración</div>
+            </div>
+
+            <div class="filtros-panel">
+                <h2>🔍 Filtrar por Año</h2>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label>Año Lectivo</label>
+                        <select id="anioInventario">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label>Categoría</label>
+                        <select id="categoriaInventario">
+                            <option value="">Todas</option>
+                            <option value="mobiliario">Mobiliario</option>
+                            <option value="equipos">Equipos</option>
+                            <option value="material">Material</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtros-acciones">
+                    <button class="btn-funcional-inline" id="exportarInventarioBtn">📊 Exportar Excel</button>
+                    <button class="btn-secundario" id="agregarItemBtn">➕ Agregar Item</button>
+                </div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>📋 Items del Inventario</h2>
+                <table class="modulo-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaInventarioBody">
+                        <tr>
+                            <td>Escritorios</td>
+                            <td>Mobiliario</td>
+                            <td>150</td>
+                            <td><span class="badge badge-success">Buen estado</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sillas</td>
+                            <td>Mobiliario</td>
+                            <td>300</td>
+                            <td><span class="badge badge-success">Buen estado</span></td>
+                        </tr>
+                        <tr>
+                            <td>Proyectores</td>
+                            <td>Equipos</td>
+                            <td>12</td>
+                            <td><span class="badge badge-warning">Mantenimiento</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Acciones</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./documentos.html" class="quick-action-btn">📄 Documentos</a>
+                <a href="./aulas.html" class="quick-action-btn">🏫 Aulas</a>
+                <a href="./reportes.html" class="quick-action-btn">📊 Reportes</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>El inventario se gestiona por año lectivo para mejor control.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./inventario.html">Inventario</a>
+        <a href="./documentos.html">Documentos</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/inventario.js"></script>
+</body>
+</html>

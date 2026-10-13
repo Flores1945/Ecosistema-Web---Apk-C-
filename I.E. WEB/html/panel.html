@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Directivo - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+</head>
+<body data-pagina="panel">
+
+    <div class="layout">
+        <!-- BARRA LATERAL IZQUIERDA: Navegación Principal -->
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional activo" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="contenido">
+
+            <!-- 🌟 BANNER DE BIENVENIDA -->
+            <div class="welcome-banner">
+                <h1 id="bienvenidaTexto">¡Bienvenido(a), [Usuario]!</h1>
+                <p id="detalleUsuario">Accede a los servicios institucionales, supervisa perfiles y mantén el control escolar al día.</p>
+                <div class="badge-role" id="cargoResumen">Cargo: Director(a) General</div>
+            </div>
+
+            <!-- 📢 ZONA DE COMUNICADOS -->
+            <div class="announcement-box">
+                <div class="announcement-icon">📢</div>
+                <div class="announcement-content">
+                    <h4>Próxima Actividad Escolar: Ceremonia de Aniversario Institucional</h4>
+                    <p>Se recuerda al personal docente y directivo la programación de ensayos generales este viernes a las 10:00 AM. Revisar el calendario escolar para más detalles.</p>
+                </div>
+            </div>
+
+            <!-- 👥 GRUPOS CLAVE DE INTERACCIÓN -->
+            <h2 class="modulos-titulo" style="margin-bottom: 20px;">👥 Accesos Rápidos por Rol</h2>
+            <section class="groups-grid">
+                <article class="group-card">
+                    <h3>🎒 Alumnos y Padres</h3>
+                    <p>Consulta de notas, asistencias, justificaciones y estado de cuenta.</p>
+                    <div class="group-links">
+                        <a href="./alumnos.html" class="group-link-btn">📁 Registro de Alumnos</a>
+                        <a href="./padres.html" class="group-link-btn">💬 Portal de Padres</a>
+                        <a href="./notas.html" class="group-link-btn">📊 Notas y Boletas</a>
+                    </div>
+                </article>
+
+                <article class="group-card">
+                    <h3>👨‍🏫 Docentes</h3>
+                    <p>Gestión de clases, asistencia, tareas y tutoría.</p>
+                    <div class="group-links">
+                        <a href="./asistencias.html" class="group-link-btn">📋 Registro Asistencia</a>
+                        <a href="./tareas.html" class="group-link-btn">📝 Tareas y Evaluaciones</a>
+                        <a href="./tutoria.html" class="group-link-btn">🧠 Tutoría</a>
+                    </div>
+                </article>
+
+                <article class="group-card">
+                    <h3>👔 Directiva</h3>
+                    <p>Supervisión global, administración, reportes y auditoría.</p>
+                    <div class="group-links">
+                        <a href="./reportes.html" class="group-link-btn">📈 Reportes y Auditoría</a>
+                        <a href="./registro.html" class="group-link-btn">⚙️ Registrar Personal</a>
+                        <a href="./comunicados.html" class="group-link-btn">📢 Emitir Comunicados</a>
+                    </div>
+                </article>
+            </section>
+
+            <!-- 🏛️ SERVICIOS INSTITUCIONALES -->
+            <div class="section-header-flex">
+                <h2 class="modulos-titulo">🏛️ Directorio de Servicios</h2>
+                <span class="section-subtitle">Todos los módulos disponibles</span>
+            </div>
+
+            <section class="modulos-grid">
+                <a class="tarjeta-modulo" href="./calendario.html">
+                    <div class="modulo-icon-box">📅</div>
+                    <div class="modulo-text">
+                        <strong>Calendario</strong>
+                        <span>Cronograma lectivo</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./horarios.html">
+                    <div class="modulo-icon-box">⏰</div>
+                    <div class="modulo-text">
+                        <strong>Horarios</strong>
+                        <span>Turnos de clases</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./eventos.html">
+                    <div class="modulo-icon-box">🎉</div>
+                    <div class="modulo-text">
+                        <strong>Eventos</strong>
+                        <span>Actos cívicos</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./comunicados.html">
+                    <div class="modulo-icon-box">📢</div>
+                    <div class="modulo-text">
+                        <strong>Comunicados</strong>
+                        <span>Avisos oficiales</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./notas.html">
+                    <div class="modulo-icon-box">📊</div>
+                    <div class="modulo-text">
+                        <strong>Notas</strong>
+                        <span>Evaluaciones</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./boletas.html">
+                    <div class="modulo-icon-box">📈</div>
+                    <div class="modulo-text">
+                        <strong>Boletas</strong>
+                        <span>Informes de progreso</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./tareas.html">
+                    <div class="modulo-icon-box">📝</div>
+                    <div class="modulo-text">
+                        <strong>Tareas</strong>
+                        <span>Asignaciones</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./tutoria.html">
+                    <div class="modulo-icon-box">🧠</div>
+                    <div class="modulo-text">
+                        <strong>Tutoría</strong>
+                        <span>Convivencia</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./matriculas.html">
+                    <div class="modulo-icon-box">🎓</div>
+                    <div class="modulo-text">
+                        <strong>Matrículas</strong>
+                        <span>Inscripción</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./pagos.html">
+                    <div class="modulo-icon-box">💳</div>
+                    <div class="modulo-text">
+                        <strong>Pagos</strong>
+                        <span>Pensiones</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./inventario.html">
+                    <div class="modulo-icon-box">📦</div>
+                    <div class="modulo-text">
+                        <strong>Inventario</strong>
+                        <span>Materiales</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./documentos.html">
+                    <div class="modulo-icon-box">📄</div>
+                    <div class="modulo-text">
+                        <strong>Documentos</strong>
+                        <span>Archivos</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./biblioteca.html">
+                    <div class="modulo-icon-box">📖</div>
+                    <div class="modulo-text">
+                        <strong>Biblioteca</strong>
+                        <span>Préstamos</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./salud.html">
+                    <div class="modulo-icon-box">🩹</div>
+                    <div class="modulo-text">
+                        <strong>Salud</strong>
+                        <span>Tópico</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./psicologia.html">
+                    <div class="modulo-icon-box">🧠</div>
+                    <div class="modulo-text">
+                        <strong>Psicología</strong>
+                        <span>Psicopedagogía</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./aulas.html">
+                    <div class="modulo-icon-box">�</div>
+                    <div class="modulo-text">
+                        <strong>Aulas</strong>
+                        <span>Ambientes</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./padres.html">
+                    <div class="modulo-icon-box">👨‍👩‍�</div>
+                    <div class="modulo-text">
+                        <strong>Padres</strong>
+                        <span>APAFA</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./justificaciones.html">
+                    <div class="modulo-icon-box">�</div>
+                    <div class="modulo-text">
+                        <strong>Justificaciones</strong>
+                        <span>Permisos</span>
+                    </div>
+                </a>
+                <a class="tarjeta-modulo" href="./foro.html">
+                    <div class="modulo-icon-box">💬</div>
+                    <div class="modulo-text">
+                        <strong>Foro</strong>
+                        <span>Consultas</span>
+                    </div>
+                </a>
+            </section>
+        </main>
+
+        <!-- 📋 BARRA DERECHA DE UTILIDAD -->
+        <aside class="barra barra-utilidad">
+
+            <!-- 1. PENDIENTES DE REVISIÓN -->
+            <h2 style="margin-top: 0;">Trámites del Día</h2>
+            <div class="widget-card">
+                <h3>⏳ Pendientes de Revisión</h3>
+                <p>Hay <strong>3 solicitudes</strong> de justificación y <strong>1 permiso</strong> docente esperando validación.</p>
+            </div>
+
+            <!-- 2. ACCESOS RÁPIDOS -->
+            <h2>Accesos Rápidos</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./justificaciones.html" class="quick-action-btn">📝 Aprobar Justificaciones</a>
+                <a href="./comunicados.html" class="quick-action-btn">📢 Redactar Comunicado</a>
+                <a href="./reportes.html" class="quick-action-btn">📊 Auditoría de Asistencias</a>
+            </div>
+
+            <!-- 3. FILTRO DE INCIDENTES Y REPORTES -->
+            <h2>Reportes de Convivencia</h2>
+            <div class="widget-card">
+                <h3>🚨 Incidentes Recientes</h3>
+                <div class="incident-item">
+                    <span>Atención en Tópico</span>
+                    <span class="badge-warning">Salud</span>
+                </div>
+                <div class="incident-item">
+                    <span>Seguimiento Psicopedagógico</span>
+                    <span class="badge-warning">Tutoría</span>
+                </div>
+                <div class="incident-item">
+                    <span>Consulta Junta APAFA</span>
+                    <span class="badge-warning">Padres</span>
+                </div>
+            </div>
+
+            <!-- 4. MINI CALENDARIO Y AGENDA -->
+            <h2>Agenda del Día</h2>
+            <div class="widget-card">
+                <h3>📅 Actividades para Hoy</h3>
+                <div class="agenda-event">
+                    <strong>08:00 AM - Formación General</strong>
+                    <span>Patio principal del colegio</span>
+                </div>
+                <div class="agenda-event" style="margin-bottom: 0;">
+                    <strong>11:30 AM - Reunión Directiva</strong>
+                    <span>Sala de profesores</span>
+                </div>
+            </div>
+
+            <!-- 5. CLIMA Y ESTADO LOCAL -->
+            <h2>Estado y Clima Local</h2>
+            <div class="weather-box">
+                <div class="weather-info">
+                    <h4>21°C · Trujillo</h4>
+                    <p>🌤️ Templado / Turno Mañana</p>
+                </div>
+                <div class="weather-icon">🌤️</div>
+            </div>
+
+            <!-- 6. BOTÓN DE SALIR -->
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./alumnos.html">Alumnos</a>
+        <a href="./asistencias.html">Asistencias</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/panel.js"></script>
+</body>
+</html>

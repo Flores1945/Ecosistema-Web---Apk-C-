@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salud - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/modulos.css">
+</head>
+<body data-pagina="salud">
+
+    <div class="layout">
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo activo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <main class="contenido">
+            <div class="welcome-banner">
+                <h1>🩹 Salud Escolar</h1>
+                <p>Tópico y emergencias médicas</p>
+                <div class="badge-role">Servicios</div>
+            </div>
+
+            <div class="modulo-section">
+                <h2>🏥 Atenciones Recientes</h2>
+                <ul class="modulo-list">
+                    <li>
+                        <strong>Dolor de cabeza - Estudiante 2° A</strong>
+                        <span>10:30 AM - Atendido</span>
+                    </li>
+                    <li>
+                        <strong>Herida leve - Estudiante 1° B</strong>
+                        <span>11:15 AM - Curado</span>
+                    </li>
+                    <li>
+                        <strong>Malestar estomacal - Estudiante 3° C</strong>
+                        <span>14:00 PM - Observación</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="modulo-section">
+                <h2>📊 Estadísticas del Mes</h2>
+                <div class="resumen-grid">
+                    <div class="resumen-card verde">
+                        <h3 class="valor">45</h3>
+                        <p class="label">Atenciones</p>
+                    </div>
+                    <div class="resumen-card rojo">
+                        <h3 class="valor">3</h3>
+                        <p class="label">Emergencias</p>
+                    </div>
+                    <div class="resumen-card">
+                        <h3 class="valor">98%</h3>
+                        <p class="label">Resueltos</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Acciones</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./justificaciones.html" class="quick-action-btn">📋 Justificaciones</a>
+                <a href="./tutoria.html" class="quick-action-btn">🧠 Tutoría</a>
+                <a href="./psicologia.html" class="quick-action-btn">🧠 Psicología</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>El tópico está abierto de 8:00 AM a 4:00 PM.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./salud.html">Salud</a>
+        <a href="./justificaciones.html">Justificaciones</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/salud.js"></script>
+</body>
+</html>

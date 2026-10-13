@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Escolar - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/modulos.css">
+</head>
+<body data-pagina="calendario">
+
+    <div class="layout">
+        <!-- BARRA LATERAL IZQUIERDA: Navegación Principal -->
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo activo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="contenido">
+            <!-- BANNER DE PÁGINA -->
+            <div class="welcome-banner">
+                <h1>📅 Calendario Escolar</h1>
+                <p>Cronograma lectivo y actividades institucionales</p>
+                <div class="badge-role">Año Lectivo 2026</div>
+            </div>
+
+            <!-- INFORMACIÓN GENERAL -->
+            <div class="modulo-section">
+                <h2>📅 Hitos del Año Lectivo</h2>
+                <table class="modulo-table">
+                    <thead>
+                        <tr>
+                            <th>Periodo</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>I Bimestre</td>
+                            <td>02 mar</td>
+                            <td>08 may</td>
+                        </tr>
+                        <tr>
+                            <td>II Bimestre</td>
+                            <td>11 may</td>
+                            <td>17 jul</td>
+                        </tr>
+                        <tr>
+                            <td>III Bimestre</td>
+                            <td>03 ago</td>
+                            <td>09 oct</td>
+                        </tr>
+                        <tr>
+                            <td>IV Bimestre</td>
+                            <td>12 oct</td>
+                            <td>18 dic</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- EVENTOS DEL MES -->
+            <div class="modulo-section">
+                <h2>🎉 Eventos del Mes</h2>
+                <ul class="modulo-list">
+                    <li>
+                        <strong>05 mar - Inicio de clases</strong>
+                        <span>Formación general en patio principal</span>
+                    </li>
+                    <li>
+                        <strong>15 mar - Reunión de padres</strong>
+                        <span>APAFA, 6:00 PM</span>
+                    </li>
+                    <li>
+                        <strong>28 mar - Evaluación parcial</strong>
+                        <span>Exámenes bimestrales</span>
+                    </li>
+                    <li>
+                        <strong>10 abr - Día del estudiante</strong>
+                        <span>Actividades recreativas</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- FECHAS IMPORTANTES -->
+            <div class="modulo-section">
+                <h2>📌 Fechas Importantes</h2>
+                <div class="modulo-grid">
+                    <div class="modulo-card">
+                        <h3>🎓 Matrículas</h3>
+                        <p>01-15 de diciembre</p>
+                    </div>
+                    <div class="modulo-card">
+                        <h3>📝 Exámenes</h3>
+                        <p>Última semana de cada bimestre</p>
+                    </div>
+                    <div class="modulo-card">
+                        <h3>🏖️ Vacaciones</h3>
+                        <p>20 dic - 28 feb</p>
+                    </div>
+                    <div class="modulo-card">
+                        <h3>🎉 Aniversario</h3>
+                        <p>15 de mayo</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- BARRA DERECHA -->
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Próximos Eventos</h2>
+            <div class="widget-card">
+                <h3>📅 Esta Semana</h3>
+                <div class="agenda-event">
+                    <strong>Lunes - Inicio de clases</strong>
+                    <span>08:00 AM</span>
+                </div>
+                <div class="agenda-event">
+                    <strong>Miércoles - Reunión APAFA</strong>
+                    <span>06:00 PM</span>
+                </div>
+                <div class="agenda-event" style="margin-bottom: 0;">
+                    <strong>Viernes - Evaluación</strong>
+                    <span>Todo el día</span>
+                </div>
+            </div>
+
+            <h2>Accesos Rápidos</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./eventos.html" class="quick-action-btn">🎉 Ver Eventos</a>
+                <a href="./horarios.html" class="quick-action-btn">⏰ Ver Horarios</a>
+                <a href="./comunicados.html" class="quick-action-btn">📢 Comunicados</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>Revisa el calendario regularmente para estar al tanto de las actividades institucionales.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./calendario.html">Calendario</a>
+        <a href="./eventos.html">Eventos</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/calendario.js"></script>
+</body>
+</html>

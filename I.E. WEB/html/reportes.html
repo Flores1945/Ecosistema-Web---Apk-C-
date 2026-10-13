@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/reportes.css">
+</head>
+<body data-pagina="reportes">
+
+    <div class="layout">
+        <!-- BARRA LATERAL IZQUIERDA: Navegación Principal -->
+        <aside class="barra barra-izquierda">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional activo" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="contenido">
+            <!-- BANNER DE PÁGINA -->
+            <div class="welcome-banner">
+                <h1>📊 Reportes y Auditoría</h1>
+                <p>Control institucional y seguimiento de movimientos</p>
+                <div class="badge-role">Sistema de Gestión Escolar</div>
+            </div>
+
+            <!-- Vista directivos: registro de movimientos -->
+            <section id="vistaAuditoria" class="vista-auditoria">
+                <div class="auditoria-panel">
+                    <h2>📋 Registro de Movimientos</h2>
+                    <p>Historial de acciones en el portal web</p>
+
+                    <div class="filtros-panel">
+                        <div class="filtros-grid">
+                            <div class="filtro-grupo">
+                                <label for="filtroCargoAuditoria">Filtrar por Cargo</label>
+                                <select id="filtroCargoAuditoria">
+                                    <option value="">Todos (permitidos)</option>
+                                </select>
+                            </div>
+                            <div class="filtro-grupo">
+                                <label for="buscarUsuarioAuditoria">Buscar Usuario</label>
+                                <input type="search" id="buscarUsuarioAuditoria" placeholder="Nombre...">
+                            </div>
+                        </div>
+                        <div class="filtros-acciones">
+                            <button type="button" class="btn-funcional-inline" id="recargarAuditoriaBtn">🔄 Actualizar</button>
+                        </div>
+                    </div>
+
+                    <p class="estado-auditoria" id="estadoAuditoria"></p>
+
+                    <div class="tabla-reportes-wrap">
+                        <table class="tabla-reportes">
+                            <thead>
+                                <tr>
+                                    <th>Fecha y Hora</th>
+                                    <th>Usuario</th>
+                                    <th>Cargo</th>
+                                    <th>Acción</th>
+                                    <th>Detalle</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMovimientosBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista Apafa / Docentes: centro sin auditoria -->
+            <section id="vistaPortal" class="vista-portal oculto">
+                <div class="resumen-diario">
+                    <h3>👋 Bienvenido(a)</h3>
+                    <p id="portalDetalle">Tu espacio en el liceo</p>
+                </div>
+
+                <div class="resumen-grid">
+                    <div class="resumen-card">
+                        <h3 class="valor" id="statAlumnos">-</h3>
+                        <p class="label">Alumnos Registrados</p>
+                    </div>
+                    <div class="resumen-card">
+                        <h3 class="valor" id="statTurnoInfo">-</h3>
+                        <p class="label">Tu Turno</p>
+                    </div>
+                    <div class="resumen-card">
+                        <h3 class="valor">🔗</h3>
+                        <p class="label">Acceso Rápido</p>
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <h3>💡 Recordatorios del Día</h3>
+                    <ul id="portalTipsLista"></ul>
+                </div>
+
+                <div class="exportar-panel">
+                    <h3>📢 Avisos Institucionales</h3>
+                    <p>Mantén actualizada la información de los alumnos de tu aula o comisión.</p>
+                    <p>Los reportes de asistencia detallados son gestionados por la dirección.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- BARRA DERECHA -->
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Accesos Rápidos</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./asistencias.html" class="quick-action-btn">📋 Ver Asistencias</a>
+                <a href="./alumnos.html" class="quick-action-btn">🎒 Ver Alumnos</a>
+                <a href="./comunicados.html" class="quick-action-btn">📢 Comunicados</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>📊 Auditoría</h3>
+                <p>Los directivos pueden ver el historial completo de movimientos del sistema.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./alumnos.html">Alumnos</a>
+        <a href="./asistencias.html">Asistencias</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../js/reportes.js"></script>
+</body>
+</html>

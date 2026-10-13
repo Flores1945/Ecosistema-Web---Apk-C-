@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aulas - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/modulos.css">
+</head>
+<body class="pagina-modulo" data-pagina="aulas">
+    <header class="cabecera-modulo">
+        <div>
+            <p class="brand-bar">I.E. Liceo Trujillo</p>
+            <h1>Aulas y ambientes</h1>
+            <p class="subtitulo-modulo">Distribucion de pabellones y ocupacion</p>
+        </div>
+        <nav class="nav-global">
+            <a href="./panel.html">Panel</a>
+            <a class="activo" href="./aulas.html">Aulas</a>
+            <a href="./horarios.html">Horarios</a>
+            <a href="./alumnos.html">Alumnos</a>
+        </nav>
+    </header>
+    <section class="panel-modulo">
+        <div class="grid-info">
+            <article class="tarjeta-info"><h3>Pabellon A</h3><p>12 aulas · Primaria</p></article>
+            <article class="tarjeta-info"><h3>Pabellon B</h3><p>10 aulas · Secundaria</p></article>
+            <article class="tarjeta-info"><h3>Laboratorios</h3><p>3 ambientes</p></article>
+            <article class="tarjeta-info"><h3>Loza deportiva</h3><p>Uso compartido</p></article>
+        </div>
+        <table class="tabla-modulo">
+            <thead><tr><th>Ambiente</th><th>Capacidad</th><th>Turno</th><th>Estado</th></tr></thead>
+            <tbody>
+                <tr><td>Aula 101</td><td>32</td><td>Dia</td><td class="estado-ok">Asignada</td></tr>
+                <tr><td>Aula 205</td><td>35</td><td>Tarde</td><td class="estado-ok">Asignada</td></tr>
+                <tr><td>Sala de musica</td><td>28</td><td>Mixto</td><td class="estado-alerta">Mantenimiento</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <footer class="pie-global"><a href="./panel.html">Volver al panel</a></footer>
+    <script type="module" src="../js/aulas.js"></script>
+</body>
+</html>

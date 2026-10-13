@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../css/tema.css">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <div class="login-container registro-container">
+        <div class="logo-container">
+            <div class="logo">🏫</div>
+            <h2>I.E. Liceo Trujillo</h2>
+        </div>
+
+        <div class="login-header">
+            <h1>Registro de Personal</h1>
+            <p>Alta de directivos autorizados</p>
+        </div>
+
+        <form id="registroForm">
+            <div class="registro-grid">
+                <div class="form-grupo">
+                    <label for="nombresCompletos">Nombres Completos</label>
+                    <input type="text" id="nombresCompletos" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="dni">DNI (solo números, 8 dígitos)</label>
+                    <input type="text" id="dni" maxlength="8" pattern="\d{8}" inputmode="numeric" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="correo">Correo Electrónico</label>
+                    <input type="email" id="correo" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="celular">Número de Celular</label>
+                    <input type="tel" id="celular" pattern="\d{9}" inputmode="numeric" maxlength="9" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="cargo">Cargo</label>
+                    <select id="cargo" required>
+                        <option value="">Selecciona un cargo</option>
+                        <option value="Director">Director</option>
+                        <option value="Subdirector">Subdirector</option>
+                        <option value="Apafa">Apafa</option>
+                        <option value="Padre">Padre / Apoderado</option>
+                        <option value="Alumno">Alumno</option>
+                        <option value="Docente">Docente</option>
+                        <option value="Sub Docente">Sub Docente</option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="clave">Contraseña</label>
+                    <input type="password" id="clave" minlength="6" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Registrar</button>
+        </form>
+
+        <div class="login-footer">
+            <p>¿Ya tienes cuenta? <a href="./index.html">Volver al login</a></p>
+        </div>
+    </div>
+
+    <script type="module" src="../js/registro.js"></script>
+</body>
+</html>
