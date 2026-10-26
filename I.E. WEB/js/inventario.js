@@ -1,8 +1,12 @@
 import { initPaginaProtegida, configurarCerrarSesion, puedeModificar, esAccesoTotal } from "./auth-roles.js";
 import { registrarAccionAuditoria } from "./auditoria.js";
+import { inicializarBusquedaGlobal } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("inventario");
 if (usuario) {
+    document.addEventListener('DOMContentLoaded', () => {
+    inicializarBusquedaGlobal();
+});
     configurarCerrarSesion();
     inicializarPaginaInventario(usuario);
 }

@@ -1,8 +1,12 @@
 import { initPaginaProtegida, configurarCerrarSesion, puedeModificar, esApoderado } from "./auth-roles.js";
 import { registrarAccionAuditoria } from "./auditoria.js";
+import { inicializarBusquedaGlobal, inicializarFiltrosAvanzados } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("pagos");
 if (usuario) {
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarBusquedaGlobal();
+    });
     configurarCerrarSesion();
     inicializarPaginaPagos(usuario);
 }
@@ -10,6 +14,26 @@ if (usuario) {
 function inicializarPaginaPagos(usuario) {
     const puedeMod = puedeModificar(usuario.cargo, "pagos");
     const esPadreUser = esApoderado(usuario.cargo);
+
+    // Configurar filtros avanzados para pagos
+    inicializarFiltrosAvanzados({
+        campos: [
+            { id: 'estudiante', label: 'Nombre del Estudiante', tipo: 'texto', placeholder: 'Buscar por nombre...' },
+            { id: 'fecha', label: 'Rango de Fechas', tipo: 'fecha' },
+            { id: 'estado', label: 'Estado de Pago', tipo: 'select', opciones: [
+                { valor: 'Pagado', label: 'Pagado' },
+                { valor: 'Pendiente', label: 'Pendiente' },
+                { valor: 'Vencido', label: 'Vencido' }
+            ]},
+            { id: 'monto', label: 'Monto', tipo: 'numero', placeholder: 'Monto mínimo...' }
+        ],
+        onAplicar: (valores) => {
+            console.log('Filtros de pagos aplicados:', valores);
+        },
+        onLimpiar: () => {
+            console.log('Filtros de pagos limpiados');
+        }
+    });
 
     // Event listeners para ver detalle de pago
     const volverPagosBtn = document.getElementById("volverPagosBtn");

@@ -1,5 +1,4 @@
-import { ref, get } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
-import { db } from "./firebase-config.js";
+import { apiGet } from "./api.js";
 import {
     initPaginaProtegida,
     configurarCerrarSesion,
@@ -17,11 +16,16 @@ import {
     formatearFechaHora,
     textoAccion
 } from "./auditoria.js";
+import { inicializarBusquedaGlobal } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("reportes");
 if (!usuario) {
     throw new Error("Sin sesion");
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarBusquedaGlobal();
+});
 
 configurarCerrarSesion();
 configurarAccesosLaterales();
@@ -195,9 +199,8 @@ async function iniciarVistaPortal() {
     }
 
     try {
-        const snap = await get(ref(db, "estudiantes"));
-        const total = snap.exists() ? Object.keys(snap.val()).length : 0;
-        document.getElementById("statAlumnos").textContent = String(total);
+        const lista = await apiGet("/estudiantes");
+        document.getElementById("statAlumnos").textContent = String((lista || []).length);
     } catch {
         document.getElementById("statAlumnos").textContent = "-";
     }

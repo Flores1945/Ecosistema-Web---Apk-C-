@@ -221,6 +221,7 @@ export function filtrarEnlacesPorPermiso(cargo, raiz = document) {
 
 export function initPaginaProtegida(paginaActual) {
     const usuario = obtenerUsuario();
+
     if (!usuario) {
         window.location.href = "./index.html";
         return null;
@@ -235,6 +236,7 @@ export function initPaginaProtegida(paginaActual) {
     import("./auditoria.js").then(({ registrarVisitaPagina }) => {
         registrarVisitaPagina(paginaActual);
     });
+    configurarScrollBarraUtilidad();
     return usuario;
 }
 
@@ -263,10 +265,35 @@ export function configurarCerrarSesion() {
             const { registrarCierreSesion } = await import("./auditoria.js");
             await registrarCierreSesion(usuario);
         }
-        const { signOut } = await import("https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js");
-        const { auth } = await import("./firebase-config.js");
-        await signOut(auth);
-        sessionStorage.removeItem("usuario_activo");
+        const { limpiarSesion } = await import("./api.js");
+        limpiarSesion();
         window.location.href = "./index.html";
     });
+}
+
+// Guardar y restaurar posición de scroll de la barra izquierda
+export function configurarScrollBarraUtilidad() {
+    const barraIzquierda = document.querySelector('.barra-izquierda');
+    const STORAGE_KEY = 'panel-izquierda-scroll';
+
+    // Restaurar scroll al cargar la página
+    if (barraIzquierda) {
+        const savedScroll = localStorage.getItem(STORAGE_KEY);
+        if (savedScroll) {
+            barraIzquierda.scrollTop = parseInt(savedScroll, 10);
+        }
+
+        // Guardar scroll antes de navegar
+        const enlacesBarra = barraIzquierda.querySelectorAll('a');
+        enlacesBarra.forEach(enlace => {
+            enlace.addEventListener('click', () => {
+                localStorage.setItem(STORAGE_KEY, barraIzquierda.scrollTop);
+            });
+        });
+
+        // Guardar scroll mientras se hace scroll
+        barraIzquierda.addEventListener('scroll', () => {
+            localStorage.setItem(STORAGE_KEY, barraIzquierda.scrollTop);
+        });
+    }
 }

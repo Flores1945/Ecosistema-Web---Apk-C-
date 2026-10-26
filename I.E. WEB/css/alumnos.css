@@ -89,7 +89,7 @@
 
 .formulario-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -201,6 +201,122 @@
     font-size: 0.75rem;
     font-weight: 600;
     text-decoration: none;
+}
+
+/* Modal QR */
+.modal-qr {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-contenido {
+    background: white;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 2px solid var(--sky-light);
+}
+
+.modal-header h3 {
+    color: var(--primary-dark);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-cerrar {
+    background: var(--rojo-claro);
+    color: var(--rojo);
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.modal-cerrar:hover {
+    background: var(--rojo);
+    color: white;
+}
+
+.modal-body {
+    padding: 25px;
+    text-align: center;
+}
+
+#infoAlumnoQR {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--sky-light);
+    border-radius: 8px;
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+#codigoQR {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+}
+
+#codigoQR canvas,
+#codigoQR img {
+    max-width: 100%;
+    height: auto;
+}
+
+.btn-exito {
+    background: var(--verde-claro);
+    color: var(--verde);
+}
+
+.btn-exito:hover {
+    background: var(--verde);
+    color: white;
+}
+
+/* Botón QR en tabla */
+.tabla-alumnos .btn-qr {
+    background: var(--primary-sky);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-right: 5px;
+    display: inline-block;
+}
+
+.tabla-alumnos .btn-qr:hover {
+    background: var(--primary-dark);
+    color: white;
 }
 
 /* Responsive */

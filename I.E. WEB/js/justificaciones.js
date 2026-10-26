@@ -1,8 +1,12 @@
 import { initPaginaProtegida, configurarCerrarSesion, puedeModificar, esApoderado } from "./auth-roles.js";
 import { registrarAccionAuditoria } from "./auditoria.js";
+import { inicializarBusquedaGlobal, inicializarFiltrosAvanzados } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("justificaciones");
 if (usuario) {
+    document.addEventListener('DOMContentLoaded', () => {
+    inicializarBusquedaGlobal();
+});
     configurarCerrarSesion();
     inicializarPaginaJustificaciones(usuario);
 }
@@ -10,6 +14,26 @@ if (usuario) {
 function inicializarPaginaJustificaciones(usuario) {
     const puedeMod = puedeModificar(usuario.cargo, "justificaciones");
     const esPadreUser = esApoderado(usuario.cargo);
+
+    // Configurar filtros avanzados para justificaciones
+    inicializarFiltrosAvanzados({
+        campos: [
+            { id: 'estudiante', label: 'Nombre del Estudiante', tipo: 'texto', placeholder: 'Buscar por nombre...' },
+            { id: 'fecha', label: 'Rango de Fechas', tipo: 'fecha' },
+            { id: 'estado', label: 'Estado', tipo: 'select', opciones: [
+                { valor: 'Pendiente', label: 'Pendiente' },
+                { valor: 'Aprobada', label: 'Aprobada' },
+                { valor: 'Rechazada', label: 'Rechazada' }
+            ]},
+            { id: 'motivo', label: 'Motivo', tipo: 'texto', placeholder: 'Buscar por motivo...' }
+        ],
+        onAplicar: (valores) => {
+            console.log('Filtros de justificaciones aplicados:', valores);
+        },
+        onLimpiar: () => {
+            console.log('Filtros de justificaciones limpiados');
+        }
+    });
 
     // Event listeners para crear justificación
     const nuevaJustificacionBtn = document.getElementById("nuevaJustificacionBtn");

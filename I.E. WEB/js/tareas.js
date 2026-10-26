@@ -1,8 +1,12 @@
 import { initPaginaProtegida, configurarCerrarSesion, puedeModificar, esAlumno, esDocente } from "./auth-roles.js";
 import { registrarAccionAuditoria } from "./auditoria.js";
+import { inicializarBusquedaGlobal, inicializarFiltrosAvanzados } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("tareas");
 if (usuario) {
+    document.addEventListener('DOMContentLoaded', () => {
+    inicializarBusquedaGlobal();
+});
     configurarCerrarSesion();
     inicializarPaginaTareas(usuario);
 }
@@ -11,6 +15,26 @@ function inicializarPaginaTareas(usuario) {
     const puedeMod = puedeModificar(usuario.cargo, "tareas");
     const esAlumnoUser = esAlumno(usuario.cargo);
     const esDocenteUser = esDocente(usuario.cargo);
+
+    // Configurar filtros avanzados para tareas
+    inicializarFiltrosAvanzados({
+        campos: [
+            { id: 'titulo', label: 'Título de la Tarea', tipo: 'texto', placeholder: 'Buscar por título...' },
+            { id: 'curso', label: 'Curso', tipo: 'texto', placeholder: 'Nombre del curso...' },
+            { id: 'fecha', label: 'Rango de Fechas', tipo: 'fecha' },
+            { id: 'estado', label: 'Estado', tipo: 'select', opciones: [
+                { valor: 'Pendiente', label: 'Pendiente' },
+                { valor: 'Entregada', label: 'Entregada' },
+                { valor: 'Calificada', label: 'Calificada' }
+            ]}
+        ],
+        onAplicar: (valores) => {
+            console.log('Filtros de tareas aplicados:', valores);
+        },
+        onLimpiar: () => {
+            console.log('Filtros de tareas limpiados');
+        }
+    });
 
     // Configurar título según rol
     const tituloSeccion = document.getElementById("tituloSeccionTareas");

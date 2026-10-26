@@ -1,14 +1,8 @@
-import { ref, push, set, get, update } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
-import { db } from "./firebase-config.js";
+import { apiGet, apiPost } from "./api.js";
 import { CARGOS, obtenerUsuario } from "./auth-roles.js";
 
-/** Eventos puntuales: solo inicio y cierre de sesion */
 export const NODO_MOVIMIENTOS = "movimientos";
-
-/** Una fila por usuario (uid): se actualiza al cambiar de pagina o accion */
 export const NODO_ACTIVIDAD = "movimientos_actividad";
-
-const EVENTOS_HISTORICO = new Set(["inicio_sesion", "cierre_sesion"]);
 
 export const ESTILO_CARGO = {
     [CARGOS.DIRECTOR]: { clase: "cargo-director", etiqueta: "Director", color: "#f59e0b" },
@@ -20,7 +14,6 @@ export const ESTILO_CARGO = {
     [CARGOS.PADRE]: { clase: "cargo-padre", etiqueta: "Padre", color: "#f97316" }
 };
 
-/** El Director no genera datos de auditoria; solo consulta. */
 export function debeRegistrarAuditoria(cargo) {
     return cargo !== CARGOS.DIRECTOR;
 }
@@ -34,206 +27,80 @@ const NOMBRES_PAGINA = {
     login: "Inicio de sesion"
 };
 
-function refActividad(uid) {
-    return ref(db, `${NODO_ACTIVIDAD}/${uid}`);
-}
-
 function nombrePagina(paginaId) {
     return NOMBRES_PAGINA[paginaId] || paginaId;
 }
 
-/** Actualiza un solo registro por usuario (no crea filas nuevas). */
-async function actualizarActividadSesion(usuario, campos) {
-    if (!debeRegistrarAuditoria(usuario.cargo)) return;
-
-    const ahora = new Date().toISOString();
-    const base = {
-        uid: usuario.uid,
-        nombresCompletos: usuario.nombresCompletos,
-        correo: usuario.correo || "",
-        cargo: usuario.cargo,
-        fechaActualizacion: ahora
-    };
-
+function parseJson(valor) {
+    if (!valor) return {};
+    if (typeof valor === "object") return valor;
     try {
-        const snap = await get(refActividad(usuario.uid));
-        if (snap.exists()) {
-            await update(refActividad(usuario.uid), { ...campos, ...base });
-        } else {
-            await set(refActividad(usuario.uid), {
-                ...base,
-                sesionInicio: ahora,
-                paginaActual: campos.paginaActual || "",
-                paginaEntradaHora: campos.paginaEntradaHora || ahora,
-                ultimaAccion: campos.ultimaAccion || "sesion_activa",
-                ultimaAccionDetalle: campos.ultimaAccionDetalle || "",
-                ultimaAccionHora: campos.ultimaAccionHora || ahora
-            });
-        }
+        return JSON.parse(valor);
+    } catch {
+        return { detalle: String(valor) };
+    }
+}
+
+async function guardarEvento(usuario, accion, detalle, extra = {}) {
+    if (!usuario || !debeRegistrarAuditoria(usuario.cargo)) return;
+    try {
+        await apiPost("/auditoria", {
+            usuario_id: Number(usuario.id || usuario.uid) || 0,
+            accion,
+            tabla_afectada: extra.pagina || extra.tabla || "sesion",
+            registro_id: Number(extra.registro_id) || 0,
+            valores_nuevos: {
+                detalle,
+                nombresCompletos: usuario.nombresCompletos,
+                correo: usuario.correo || "",
+                cargo: usuario.cargo,
+                pagina: extra.pagina || ""
+            }
+        });
     } catch (error) {
-        console.warn("No se pudo actualizar actividad:", error);
+        console.warn("Auditoria:", error);
     }
 }
 
 export async function registrarMovimiento(accion, detalle, extra = {}) {
     const usuario = obtenerUsuario();
     if (!usuario) return;
-
-    const ahora = new Date().toISOString();
-    await actualizarActividadSesion(usuario, {
-        ultimaAccion: accion,
-        ultimaAccionDetalle: detalle,
-        ultimaAccionHora: ahora,
-        pagina: extra.pagina || ""
-    });
+    await guardarEvento(usuario, accion, detalle, extra);
 }
 
 export function registrarVisitaPagina(paginaId) {
     const usuario = obtenerUsuario();
     if (!usuario) return Promise.resolve();
-
-    const ahora = new Date().toISOString();
-    const nombre = nombrePagina(paginaId);
-
-    return actualizarActividadSesion(usuario, {
-        paginaActual: paginaId,
-        paginaEntradaHora: ahora,
-        ultimaAccion: "en_pagina",
-        ultimaAccionDetalle: `En ${nombre}`,
-        ultimaAccionHora: ahora,
-        pagina: paginaId
-    });
+    return guardarEvento(usuario, "en_pagina", `En ${nombrePagina(paginaId)}`, { pagina: paginaId });
 }
 
 export async function registrarInicioSesion(usuario) {
-    if (!usuario || !debeRegistrarAuditoria(usuario.cargo)) {
-        return;
-    }
-
-    const ahora = new Date().toISOString();
-
-    try {
-        await set(push(ref(db, NODO_MOVIMIENTOS)), {
-            uid: usuario.uid,
-            nombresCompletos: usuario.nombresCompletos,
-            correo: usuario.correo || "",
-            cargo: usuario.cargo,
-            accion: "inicio_sesion",
-            detalle: "Inicio de sesion en el portal web",
-            pagina: "login",
-            fechaHora: ahora
-        });
-
-        await set(refActividad(usuario.uid), {
-            uid: usuario.uid,
-            nombresCompletos: usuario.nombresCompletos,
-            correo: usuario.correo || "",
-            cargo: usuario.cargo,
-            sesionInicio: ahora,
-            paginaActual: "login",
-            paginaEntradaHora: ahora,
-            ultimaAccion: "inicio_sesion",
-            ultimaAccionDetalle: "Sesion iniciada",
-            ultimaAccionHora: ahora,
-            fechaActualizacion: ahora
-        });
-    } catch (error) {
-        console.warn("Auditoria inicio sesion:", error);
-    }
+    await guardarEvento(usuario, "inicio_sesion", "Inicio de sesion en el portal web", { pagina: "login" });
 }
 
 export async function registrarCierreSesion(usuario) {
-    if (!usuario || !debeRegistrarAuditoria(usuario.cargo)) {
-        return;
-    }
-
-    const ahora = new Date().toISOString();
-
-    try {
-        await set(push(ref(db, NODO_MOVIMIENTOS)), {
-            uid: usuario.uid,
-            nombresCompletos: usuario.nombresCompletos,
-            correo: usuario.correo || "",
-            cargo: usuario.cargo,
-            accion: "cierre_sesion",
-            detalle: "Cerro sesion en el portal web",
-            pagina: "",
-            fechaHora: ahora
-        });
-
-        await set(refActividad(usuario.uid), null);
-    } catch (error) {
-        console.warn("Auditoria cierre sesion:", error);
-    }
-}
-
-function filaDesdeEvento(id, data) {
-    return {
-        id,
-        tipo: "evento",
-        uid: data.uid || "",
-        nombresCompletos: data.nombresCompletos || "Sin nombre",
-        correo: data.correo || "",
-        cargo: data.cargo || "Desconocido",
-        accion: data.accion,
-        detalle: data.detalle || "",
-        pagina: data.pagina || "",
-        fechaHora: data.fechaHora || ""
-    };
-}
-
-function filaDesdeActividad(uid, data) {
-    const paginaLabel = nombrePagina(data.paginaActual || data.pagina || "");
-    const entrada = data.paginaEntradaHora ? formatearFechaHora(data.paginaEntradaHora) : "-";
-    const detalle = [
-        `Pagina actual: ${paginaLabel} (desde ${entrada})`,
-        data.ultimaAccionDetalle ? `Ultima accion: ${data.ultimaAccionDetalle}` : ""
-    ]
-        .filter(Boolean)
-        .join(" · ");
-
-    return {
-        id: `actividad_${uid}`,
-        tipo: "actividad",
-        uid,
-        nombresCompletos: data.nombresCompletos || "Sin nombre",
-        correo: data.correo || "",
-        cargo: data.cargo || "Desconocido",
-        accion: data.ultimaAccion || "sesion_activa",
-        detalle,
-        pagina: data.paginaActual || data.pagina || "",
-        fechaHora: data.fechaActualizacion || data.ultimaAccionHora || data.paginaEntradaHora || ""
-    };
+    await guardarEvento(usuario, "cierre_sesion", "Cerro sesion en el portal web", { pagina: "login" });
 }
 
 export async function cargarMovimientos() {
-    const [snapEventos, snapActividad] = await Promise.all([
-        get(ref(db, NODO_MOVIMIENTOS)),
-        get(ref(db, NODO_ACTIVIDAD))
-    ]);
-
-    const filas = [];
-
-    if (snapEventos.exists()) {
-        Object.entries(snapEventos.val()).forEach(([id, data]) => {
-            if (EVENTOS_HISTORICO.has(data.accion)) {
-                filas.push(filaDesdeEvento(id, data));
-            }
-        });
-    }
-
-    if (snapActividad.exists()) {
-        Object.entries(snapActividad.val()).forEach(([uid, data]) => {
-            if (data && typeof data === "object") {
-                filas.push(filaDesdeActividad(uid, data));
-            }
-        });
-    }
-
-    return filas.sort((a, b) => new Date(b.fechaHora) - new Date(a.fechaHora));
+    const filasApi = await apiGet("/auditoria");
+    return (filasApi || []).map((row) => {
+        const extra = parseJson(row.valores_nuevos);
+        return {
+            id: row.id,
+            tipo: "evento",
+            uid: String(row.usuario_id || ""),
+            nombresCompletos: extra.nombresCompletos || "Sin nombre",
+            correo: extra.correo || "",
+            cargo: extra.cargo || "Desconocido",
+            accion: row.accion,
+            detalle: extra.detalle || "",
+            pagina: extra.pagina || row.tabla_afectada || "",
+            fechaHora: row.fecha_accion || ""
+        };
+    }).sort((a, b) => new Date(b.fechaHora) - new Date(a.fechaHora));
 }
 
-/** Cargos que aparecen en leyenda y filtro de Reportes (sin Director). */
 export function cargosVisiblesEnReportes(cargoVisor) {
     if (cargoVisor === CARGOS.DIRECTOR) {
         return [CARGOS.SUBDIRECTOR, CARGOS.APAFA, CARGOS.DOCENTE, CARGOS.SUB_DOCENTE];
@@ -289,7 +156,10 @@ export function textoAccion(accion) {
         exportacion_asistencias: "Exportacion Excel (asistencias)",
         datos_demo: "Datos de prueba",
         limpiar_demo: "Limpieza de demo",
-        registro_personal: "Alta de personal"
+        registro_personal: "Alta de personal",
+        CREAR: "Crear",
+        ACTUALIZAR: "Actualizar",
+        ELIMINAR: "Eliminar"
     };
-    return mapa[accion] || accion.replace(/_/g, " ");
+    return mapa[accion] || String(accion).replace(/_/g, " ");
 }

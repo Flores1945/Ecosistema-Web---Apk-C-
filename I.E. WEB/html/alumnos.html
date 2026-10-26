@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/alumnos.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body data-pagina="alumnos">
 
@@ -81,32 +82,43 @@
 
                     <div class="formulario-grid">
                         <div class="form-grupo">
-                            <label for="nombresCompletos">Nombres Completos</label>
-                            <input type="text" id="nombresCompletos" required>
+                            <label for="nombres">Nombres</label>
+                            <input type="text" id="nombres" required placeholder="Ej: Juan Carlos">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="apellidos">Apellidos</label>
+                            <input type="text" id="apellidos" required placeholder="Ej: Pérez López">
                         </div>
 
                         <div class="form-grupo">
                             <label for="nivel">Nivel</label>
-                            <select id="nivel" required></select>
+                            <select id="nivel" required>
+                                <option value="">Seleccionar</option>
+                                <option value="Primaria">Primaria</option>
+                                <option value="Secundaria">Secundaria</option>
+                            </select>
                         </div>
 
                         <div class="form-grupo">
                             <label for="grado">Grado</label>
-                            <select id="grado" required disabled>
+                            <select id="grado" required>
                                 <option value="">Selecciona nivel primero</option>
                             </select>
                         </div>
 
                         <div class="form-grupo">
                             <label for="seccion">Sección</label>
-                            <select id="seccion" required></select>
+                            <select id="seccion" required>
+                                <option value="">Selecciona nivel primero</option>
+                            </select>
                         </div>
 
                         <div class="form-grupo">
                             <label for="turno">Turno</label>
                             <select id="turno" required>
-                                <option value="">Selecciona</option>
-                                <option value="Dia">Día</option>
+                                <option value="">Selecciona grado primero</option>
+                                <option value="Mañana">Mañana</option>
                                 <option value="Tarde">Tarde</option>
                             </select>
                         </div>
@@ -159,12 +171,29 @@
                 </div>
             </div>
 
+            <!-- MODAL PARA MOSTRAR QR -->
+            <div id="modalQR" class="modal-qr" style="display: none;">
+                <div class="modal-contenido">
+                    <div class="modal-header">
+                        <h3>📱 Código QR del Alumno</h3>
+                        <button class="modal-cerrar" id="cerrarModalQR">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="infoAlumnoQR"></div>
+                        <div id="codigoQR"></div>
+                        <button class="btn-funcional-inline btn-exito" id="descargarQRBtn">📥 Descargar QR</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+
             <!-- TABLA DE ALUMNOS -->
             <div class="tabla-alumnos-wrap">
                 <table class="tabla-alumnos">
                     <thead>
                         <tr>
                             <th>Nombres</th>
+                            <th>Apellidos</th>
                             <th>Nivel</th>
                             <th>Grado</th>
                             <th>Sección</th>

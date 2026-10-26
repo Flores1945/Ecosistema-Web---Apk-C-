@@ -1,5 +1,4 @@
-import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
-import { db } from "./firebase-config.js";
+import { apiGet, apiPost, apiPut, apiDelete } from "./api.js";
 import {
     initPaginaProtegida,
     configurarCerrarSesion,
@@ -16,26 +15,70 @@ import {
     llenarOpcionesGrado,
     llenarOpcionesSeccion,
     enlazarNivelYGrado,
-    generarAlumnoDemoAleatorio
+    generarAlumnoDemoAleatorio,
+    MAX_ALUMNOS_POR_AULA
 } from "./catalogo-escolar.js";
+import { inicializarBusquedaGlobal, inicializarFiltrosAvanzados } from "./busqueda-global.js";
 
-const NODO_ESTUDIANTES = "estudiantes";
 const usuario = initPaginaProtegida("alumnos");
 if (!usuario) {
     throw new Error("Sin sesion");
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarBusquedaGlobal();
+});
+
 const soloLectura = esSoloLecturaAlumnos(usuario.cargo);
 const puedeEditar = puedeGestionarAlumnos(usuario.cargo);
+
+// Configurar filtros avanzados para alumnos
+inicializarFiltrosAvanzados({
+    campos: [
+        { id: 'nombre', label: 'Nombre del Alumno', tipo: 'texto', placeholder: 'Buscar por nombre...' },
+        { id: 'nivel', label: 'Nivel', tipo: 'select', opciones: [
+            { valor: 'Primaria', label: 'Primaria' },
+            { valor: 'Secundaria', label: 'Secundaria' }
+        ]},
+        { id: 'grado', label: 'Grado', tipo: 'select', opciones: [
+            { valor: '1', label: '1° Grado' },
+            { valor: '2', label: '2° Grado' },
+            { valor: '3', label: '3° Grado' },
+            { valor: '4', label: '4° Grado' },
+            { valor: '5', label: '5° Grado' },
+            { valor: '6', label: '6° Grado' }
+        ]},
+        { id: 'seccion', label: 'Sección', tipo: 'select', opciones: [
+            { valor: 'A', label: 'Sección A' },
+            { valor: 'B', label: 'Sección B' },
+            { valor: 'C', label: 'Sección C' }
+        ]},
+        { id: 'turno', label: 'Turno', tipo: 'select', opciones: [
+            { valor: 'Mañana', label: 'Mañana' },
+            { valor: 'Tarde', label: 'Tarde' }
+        ]}
+    ],
+    onAplicar: (valores) => {
+        console.log('Filtros aplicados:', valores);
+        // Aquí puedes implementar la lógica de filtrado
+    },
+    onLimpiar: () => {
+        console.log('Filtros limpiados');
+        // Aquí puedes implementar la lógica de limpieza
+    }
+});
 
 const formAlumno = document.getElementById("formAlumno");
 const panelFormulario = document.getElementById("panelFormulario");
 const tituloFormulario = document.getElementById("tituloFormulario");
 const subtituloPagina = document.getElementById("subtituloPagina");
 const alumnoIdInput = document.getElementById("alumnoId");
+const nombresInput = document.getElementById("nombres");
+const apellidosInput = document.getElementById("apellidos");
 const selectNivel = document.getElementById("nivel");
 const selectGrado = document.getElementById("grado");
 const selectSeccion = document.getElementById("seccion");
+const selectTurno = document.getElementById("turno");
 const filtroNivel = document.getElementById("filtroNivel");
 const filtroGrado = document.getElementById("filtroGrado");
 const filtroSeccion = document.getElementById("filtroSeccion");
@@ -58,7 +101,7 @@ configurarModoPorRol();
 function inicializarFormularioEscolar() {
     llenarOpcionesNivel(selectNivel);
     llenarOpcionesSeccion(selectSeccion);
-    enlazarNivelYGrado(selectNivel, selectGrado);
+    enlazarNivelYGrado(selectNivel, selectGrado, selectSeccion, selectTurno);
 
     llenarSelect(filtroSeccion, [...SECCIONES], "Todas");
 }
@@ -86,7 +129,8 @@ function limpiarFormulario() {
 
 function cargarFormularioEdicion(alumno) {
     alumnoIdInput.value = alumno.id;
-    document.getElementById("nombresCompletos").value = alumno.nombresCompletos;
+    nombresInput.value = alumno.nombres || "";
+    apellidosInput.value = alumno.apellidos || "";
     selectNivel.value = alumno.nivel || "";
     llenarOpcionesGrado(selectGrado, selectNivel.value, "Selecciona", alumno.grado);
     selectSeccion.value = alumno.seccion;
@@ -95,23 +139,25 @@ function cargarFormularioEdicion(alumno) {
     panelFormulario.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function mapearAlumno(data) {
+    return {
+        id: data.id,
+        nombres: data.nombres || "",
+        apellidos: data.apellidos || "",
+        nombresCompletos: `${data.nombres || ""} ${data.apellidos || ""}`.trim(),
+        dni: data.dni || "",
+        nivel: data.nivel || "",
+        grado: data.grado ?? "",
+        seccion: data.seccion || "",
+        turno: data.turno === "Noche" ? "Tarde" : data.turno || "",
+        demo: Boolean(data.es_demo)
+    };
+}
+
 async function cargarAlumnos() {
     estadoAlumnos.textContent = "Cargando alumnos...";
-    const snapshot = await get(ref(db, NODO_ESTUDIANTES));
-
-    if (!snapshot.exists()) {
-        alumnos = [];
-    } else {
-        alumnos = Object.entries(snapshot.val()).map(([id, data]) => ({
-            id,
-            nombresCompletos: data.nombresCompletos || "",
-            nivel: data.nivel || "",
-            grado: data.grado || "",
-            seccion: data.seccion || "",
-            turno: data.turno === "Noche" ? "Tarde" : data.turno || "",
-            demo: data.demo === true
-        }));
-    }
+    const lista = await apiGet("/estudiantes");
+    alumnos = (lista || []).map(mapearAlumno);
 
     poblarFiltros();
     renderTabla();
@@ -156,7 +202,7 @@ function aplicarFiltros() {
 
     return alumnos.filter((a) => {
         const okNivel = !nivel || a.nivel === nivel;
-        const okGrado = !grado || a.grado === grado;
+        const okGrado = !grado || String(a.grado) === String(grado);
         const okSeccion = !seccion || a.seccion === seccion;
         const okTurno = !turno || a.turno === turno;
         return okNivel && okGrado && okSeccion && okTurno;
@@ -177,15 +223,17 @@ function renderTabla() {
         const tr = document.createElement("tr");
         const accionesHtml = puedeEditar
             ? `<td class="celda-acciones">
+                <button type="button" class="btn-tabla qr" data-id="${alumno.id}">📱 QR</button>
                 <button type="button" class="btn-tabla editar" data-id="${alumno.id}">Editar</button>
                 <button type="button" class="btn-tabla eliminar" data-id="${alumno.id}">Eliminar</button>
                </td>`
             : "";
 
         tr.innerHTML = `
-            <td>${alumno.nombresCompletos}</td>
+            <td>${alumno.nombres}</td>
+            <td>${alumno.apellidos}</td>
             <td>${alumno.nivel || "-"}</td>
-            <td>${alumno.grado}</td>
+            <td>${alumno.grado}°</td>
             <td>${alumno.seccion}</td>
             <td>${alumno.turno}</td>
             ${accionesHtml}
@@ -199,7 +247,7 @@ function renderTabla() {
 
     document.querySelectorAll(".btn-tabla.editar").forEach((btn) => {
         btn.addEventListener("click", () => {
-            const alumno = alumnos.find((a) => a.id === btn.dataset.id);
+            const alumno = alumnos.find((a) => String(a.id) === String(btn.dataset.id));
             if (alumno) cargarFormularioEdicion(alumno);
         });
     });
@@ -207,7 +255,90 @@ function renderTabla() {
     document.querySelectorAll(".btn-tabla.eliminar").forEach((btn) => {
         btn.addEventListener("click", () => eliminarAlumno(btn.dataset.id));
     });
+
+    document.querySelectorAll(".btn-tabla.qr").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const alumno = alumnos.find((a) => String(a.id) === String(btn.dataset.id));
+            if (alumno) mostrarQRAlumno(alumno);
+        });
+    });
 }
+
+// Funciones para QR
+const modalQR = document.getElementById("modalQR");
+const cerrarModalQR = document.getElementById("cerrarModalQR");
+const codigoQR = document.getElementById("codigoQR");
+const infoAlumnoQR = document.getElementById("infoAlumnoQR");
+const descargarQRBtn = document.getElementById("descargarQRBtn");
+let alumnoActualQR = null;
+
+function mostrarQRAlumno(alumno) {
+    alumnoActualQR = alumno;
+    
+    // Mostrar información del alumno
+    infoAlumnoQR.innerHTML = `
+        <strong>${alumno.nombres} ${alumno.apellidos}</strong><br>
+        ${alumno.nivel} - ${alumno.grado}° "${alumno.seccion}" - ${alumno.turno}
+    `;
+    
+    // Generar datos del QR (formato JSON para la APK)
+    const datosQR = JSON.stringify({
+        id: alumno.id,
+        dni: alumno.dni || "",
+        nombres: alumno.nombres,
+        apellidos: alumno.apellidos,
+        nivel: alumno.nivel,
+        grado: alumno.grado,
+        seccion: alumno.seccion,
+        turno: alumno.turno
+    });
+    
+    // Limpiar QR anterior
+    codigoQR.innerHTML = "";
+    
+    // Generar QR
+    QRCode.toCanvas(datosQR, { 
+        width: 250,
+        margin: 2,
+        color: {
+            dark: "#0284c7",
+            light: "#ffffff"
+        }
+    }, function(error, canvas) {
+        if (error) {
+            console.error(error);
+            codigoQR.innerHTML = "<p>Error al generar QR</p>";
+            return;
+        }
+        codigoQR.appendChild(canvas);
+    });
+    
+    // Mostrar modal
+    modalQR.style.display = "flex";
+}
+
+cerrarModalQR.addEventListener("click", () => {
+    modalQR.style.display = "none";
+});
+
+modalQR.addEventListener("click", (e) => {
+    if (e.target === modalQR) {
+        modalQR.style.display = "none";
+    }
+});
+
+descargarQRBtn.addEventListener("click", () => {
+    if (!alumnoActualQR) return;
+    
+    const canvas = codigoQR.querySelector("canvas");
+    if (!canvas) return;
+    
+    // Crear imagen para descargar
+    const link = document.createElement("a");
+    link.download = `QR_${alumnoActualQR.nombres}_${alumnoActualQR.apellidos}_${alumnoActualQR.nivel}_${alumnoActualQR.grado}${alumnoActualQR.seccion}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+});
 
 function validarFormularioAlumno() {
     const nivel = selectNivel.value;
@@ -218,7 +349,42 @@ function validarFormularioAlumno() {
         estadoAlumnos.textContent = "Selecciona nivel y un grado valido para ese nivel.";
         return false;
     }
+
+    if (!nombresInput.value.trim()) {
+        estadoAlumnos.textContent = "El nombre es obligatorio.";
+        return false;
+    }
+
+    if (!apellidosInput.value.trim()) {
+        estadoAlumnos.textContent = "Los apellidos son obligatorios.";
+        return false;
+    }
+
     return true;
+}
+
+async function verificarCapacidadAula(nivel, grado, seccion, turno, alumnoIdExcluir = null) {
+    const alumnosEnAula = alumnos.filter(a => {
+        if (a.nivel !== nivel || a.grado !== grado || a.seccion !== seccion || a.turno !== turno) {
+            return false;
+        }
+        if (alumnoIdExcluir && a.id === alumnoIdExcluir) {
+            return false; // Excluir el alumno que se está editando
+        }
+        return true;
+    });
+
+    if (alumnosEnAula.length >= MAX_ALUMNOS_POR_AULA) {
+        return {
+            valido: false,
+            mensaje: `Esta aula (${nivel} ${grado}° - Sección ${seccion} - ${turno}) ya tiene ${MAX_ALUMNOS_POR_AULA} alumnos. Capacidad máxima alcanzada.`
+        };
+    }
+
+    return {
+        valido: true,
+        mensaje: `Capacidad disponible: ${MAX_ALUMNOS_POR_AULA - alumnosEnAula.length} lugares en esta aula.`
+    };
 }
 
 async function guardarAlumno(event) {
@@ -226,30 +392,54 @@ async function guardarAlumno(event) {
     if (!puedeEditar || !validarFormularioAlumno()) return;
 
     const payload = {
-        nombresCompletos: document.getElementById("nombresCompletos").value.trim(),
+        nombres: nombresInput.value.trim(),
+        apellidos: apellidosInput.value.trim(),
         nivel: selectNivel.value,
         grado: selectGrado.value,
         seccion: selectSeccion.value,
-        turno: document.getElementById("turno").value,
+        turno: selectTurno.value,
         fechaActualizacion: new Date().toISOString()
     };
 
+    // Verificar capacidad del aula
+    const verificacion = await verificarCapacidadAula(
+        payload.nivel,
+        payload.grado,
+        payload.seccion,
+        payload.turno,
+        alumnoIdInput.value || null
+    );
+
+    if (!verificacion.valido) {
+        estadoAlumnos.textContent = verificacion.mensaje;
+        return;
+    }
+
     try {
         const id = alumnoIdInput.value;
+        const body = {
+            nombres: payload.nombres,
+            apellidos: payload.apellidos,
+            nivel: payload.nivel,
+            grado: Number(payload.grado),
+            seccion: payload.seccion,
+            turno: payload.turno,
+            estado: "Activo"
+        };
         if (id) {
-            await update(ref(db, `${NODO_ESTUDIANTES}/${id}`), payload);
+            await apiPut(`/estudiantes/${id}`, body);
             await registrarMovimiento(
                 "modificacion_alumno",
-                `Modifico alumno: ${payload.nombresCompletos} (${payload.nivel} ${payload.grado} ${payload.seccion}, ${payload.turno})`,
+                `Modifico alumno: ${payload.nombres} ${payload.apellidos} (${payload.nivel} ${payload.grado}° ${payload.seccion}, ${payload.turno})`,
                 { pagina: "alumnos" }
             );
             estadoAlumnos.textContent = "Alumno actualizado correctamente.";
         } else {
-            payload.fechaRegistro = new Date().toISOString();
-            await set(push(ref(db, NODO_ESTUDIANTES)), payload);
+            body.fecha_matricula = new Date().toISOString().slice(0, 10);
+            await apiPost("/estudiantes", body);
             await registrarMovimiento(
                 "registro_alumno",
-                `Registro alumno: ${payload.nombresCompletos} (${payload.nivel} ${payload.grado} ${payload.seccion}, ${payload.turno})`,
+                `Registro alumno: ${payload.nombres} ${payload.apellidos} (${payload.nivel} ${payload.grado}° ${payload.seccion}, ${payload.turno})`,
                 { pagina: "alumnos" }
             );
             estadoAlumnos.textContent = "Alumno registrado correctamente.";
@@ -257,7 +447,7 @@ async function guardarAlumno(event) {
         limpiarFormulario();
         await cargarAlumnos();
     } catch (error) {
-        estadoAlumnos.textContent = "Error al guardar en Firebase (revisa reglas del nodo estudiantes).";
+        estadoAlumnos.textContent = error.message || "Error al guardar el alumno en MySQL.";
         console.error(error);
     }
 }
@@ -267,11 +457,11 @@ async function eliminarAlumno(id) {
     if (!confirm("Eliminar este alumno?")) return;
 
     try {
-        const alumno = alumnos.find((a) => a.id === id);
-        await update(ref(db, `${NODO_ESTUDIANTES}/${id}`), null);
+        const alumno = alumnos.find((a) => String(a.id) === String(id));
+        await apiDelete(`/estudiantes/${id}`);
         await registrarMovimiento(
             "eliminacion_alumno",
-            `Elimino alumno: ${alumno?.nombresCompletos || id}`,
+            `Elimino alumno: ${alumno?.nombres} ${alumno?.apellidos || id}`,
             { pagina: "alumnos" }
         );
         estadoAlumnos.textContent = "Alumno eliminado.";
@@ -288,18 +478,20 @@ async function cargarDemoAlumnos() {
 
     try {
         estadoAlumnos.textContent = "Cargando 60 alumnos demo...";
-        const loteDemo = `demo_alumnos_${new Date().toISOString()}`;
-        const refEstudiantes = ref(db, NODO_ESTUDIANTES);
-
         await Promise.all(
             Array.from({ length: 60 }, () => {
                 const alumno = generarAlumnoDemoAleatorio();
-                return set(push(refEstudiantes), {
-                    ...alumno,
-                    fechaRegistro: new Date().toISOString(),
-                    demo: true,
-                    demoLote: loteDemo
-                });
+                return apiPost("/estudiantes", {
+                    nombres: alumno.nombres,
+                    apellidos: alumno.apellidos,
+                    nivel: alumno.nivel,
+                    grado: Number(alumno.grado),
+                    seccion: alumno.seccion,
+                    turno: alumno.turno,
+                    estado: "Activo",
+                    es_demo: 1,
+                    fecha_matricula: new Date().toISOString().slice(0, 10)
+                }).catch(() => null);
             })
         );
 
@@ -309,7 +501,7 @@ async function cargarDemoAlumnos() {
         estadoAlumnos.textContent = "60 alumnos demo registrados con datos variados.";
         await cargarAlumnos();
     } catch (error) {
-        estadoAlumnos.textContent = "No se pudo cargar la demo (revisa reglas de estudiantes).";
+        estadoAlumnos.textContent = "No se pudo cargar la demo (revisa capacidad de aulas o el backend).";
         console.error(error);
     }
 }
@@ -319,28 +511,15 @@ async function limpiarDemoAlumnos() {
 
     try {
         estadoAlumnos.textContent = "Limpiando alumnos demo...";
-        const snapshot = await get(ref(db, NODO_ESTUDIANTES));
-        if (!snapshot.exists()) {
-            estadoAlumnos.textContent = "No hay alumnos para limpiar.";
-            return;
-        }
-
-        const updates = {};
-        let eliminados = 0;
-
-        Object.entries(snapshot.val()).forEach(([id, data]) => {
-            if (data?.demo === true) {
-                updates[`${NODO_ESTUDIANTES}/${id}`] = null;
-                eliminados += 1;
-            }
-        });
-
-        if (!eliminados) {
+        const lista = await apiGet("/estudiantes");
+        const demos = (lista || []).filter((item) => Boolean(item.es_demo));
+        if (!demos.length) {
             estadoAlumnos.textContent = "No se encontraron alumnos demo.";
             return;
         }
 
-        await update(ref(db), updates);
+        await Promise.all(demos.map((item) => apiDelete(`/estudiantes/${item.id}`)));
+        const eliminados = demos.length;
         await registrarMovimiento("limpiar_demo", `Limpio ${eliminados} alumnos demo`, { pagina: "alumnos" });
         estadoAlumnos.textContent = `Demo limpiada: ${eliminados} alumnos eliminados.`;
         await cargarAlumnos();
@@ -387,6 +566,6 @@ cargarDemoAlumnosBtn?.addEventListener("click", cargarDemoAlumnos);
 limpiarDemoAlumnosBtn?.addEventListener("click", limpiarDemoAlumnos);
 
 cargarAlumnos().catch((error) => {
-    estadoAlumnos.textContent = "Error al cargar estudiantes desde Firebase.";
+    estadoAlumnos.textContent = "Error al cargar estudiantes. ¿Está encendido el backend?";
     console.error(error);
 });

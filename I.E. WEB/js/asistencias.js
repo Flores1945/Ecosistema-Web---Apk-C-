@@ -12,23 +12,60 @@ import {
     NIVEL_SECUNDARIA,
     SECCIONES,
     gradosPorNivel,
-    generarNombreCompletoAleatorio
+    generarNombreCompletoAleatorio,
+    llenarOpcionesNivel,
+    llenarOpcionesGrado,
+    llenarOpcionesSeccion,
+    enlazarNivelYGrado
 } from "./catalogo-escolar.js";
+import { inicializarBusquedaGlobal, inicializarFiltrosAvanzados } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("asistencias");
 if (!usuario) {
     throw new Error("Sin sesion");
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarBusquedaGlobal();
+});
+
 configurarCerrarSesion();
+
+// Configurar filtros avanzados para asistencias
+inicializarFiltrosAvanzados({
+    campos: [
+        { id: 'nombre', label: 'Nombre del Estudiante', tipo: 'texto', placeholder: 'Buscar por nombre...' },
+        { id: 'fecha', label: 'Rango de Fechas', tipo: 'fecha' },
+        { id: 'estado', label: 'Estado de Asistencia', tipo: 'select', opciones: [
+            { valor: 'Presente', label: 'Presente' },
+            { valor: 'Ausente', label: 'Ausente' },
+            { valor: 'Tarde', label: 'Tarde' },
+            { valor: 'Justificado', label: 'Justificado' }
+        ]},
+        { id: 'grado', label: 'Grado', tipo: 'select', opciones: [
+            { valor: '1', label: '1° Grado' },
+            { valor: '2', label: '2° Grado' },
+            { valor: '3', label: '3° Grado' },
+            { valor: '4', label: '4° Grado' },
+            { valor: '5', label: '5° Grado' },
+            { valor: '6', label: '6° Grado' }
+        ]}
+    ],
+    onAplicar: (valores) => {
+        console.log('Filtros de asistencias aplicados:', valores);
+    },
+    onLimpiar: () => {
+        console.log('Filtros de asistencias limpiados');
+    }
+});
 
 if (!puedeExportarAsistencias(usuario.cargo)) {
     document.getElementById("bloqueExportacion")?.classList.add("oculto");
 }
 
+const filtroNivel = document.getElementById("filtroNivel");
 const filtroGrado = document.getElementById("filtroGrado");
 const filtroSeccion = document.getElementById("filtroSeccion");
-const filtroTurno = document.getElementById("filtroTurno");
 const filtroFechaDesde = document.getElementById("filtroFechaDesde");
 const filtroFechaHasta = document.getElementById("filtroFechaHasta");
 const buscarEstudiante = document.getElementById("buscarEstudiante");
@@ -43,6 +80,9 @@ const resumenFiltrado = document.getElementById("resumenFiltrado");
 const NODOS_ASISTENCIA = ["asistencias", "asistencia", "asistencias_alumnos", "registros_asistencia"];
 const NODO_PRINCIPAL_ESCRITURA = "asistencias";
 let asistencias = [];
+
+// Inicializar filtros
+inicializarFiltrosAsistencias();
 
 if (estadoAsistencia) {
     estadoAsistencia.textContent = "Script de asistencias cargado. Listo para operar.";
@@ -118,13 +158,23 @@ function setOpcionesSelect(selectElement, valores, tituloDefault) {
 }
 
 function poblarFiltros(data) {
+    const niveles = [...new Set(data.map((x) => x.nivel).filter(Boolean))].sort();
     const grados = [...new Set(data.map((x) => x.grado).filter(Boolean))].sort();
     const secciones = [...new Set(data.map((x) => x.seccion).filter(Boolean))].sort();
-    const turnosData = [...new Set(data.map((x) => x.turno).filter(Boolean))];
-    const turnos = [...new Set([...turnosData, "Dia", "Tarde"])].sort();
+    setOpcionesSelect(filtroNivel, niveles, "Todos");
     setOpcionesSelect(filtroGrado, grados, "Todos");
     setOpcionesSelect(filtroSeccion, secciones, "Todas");
-    setOpcionesSelect(filtroTurno, turnos, "Todos");
+}
+
+function inicializarFiltrosAsistencias() {
+    // Configurar nivel
+    llenarOpcionesNivel(filtroNivel, "Todos");
+    
+    // Enlazar nivel con grado
+    enlazarNivelYGrado(filtroNivel, filtroGrado, filtroSeccion, null);
+    
+    // Cargar secciones
+    llenarOpcionesSeccion(filtroSeccion, "Todas");
 }
 
 function normalizarFechaTexto(valor) {
@@ -139,19 +189,21 @@ function normalizarFechaTexto(valor) {
 }
 
 function aplicarFiltros() {
+    const nivel = filtroNivel.value;
     const grado = filtroGrado.value;
     const seccion = filtroSeccion.value;
-    const turno = filtroTurno.value;
     const fechaDesde = filtroFechaDesde.value;
     const fechaHasta = filtroFechaHasta.value;
     const texto = buscarEstudiante.value.trim().toLowerCase();
 
     return asistencias.filter((x) => {
+        const cumpleNivel = !nivel || x.nivel === nivel;
         const cumpleGrado = !grado || x.grado === grado;
         const cumpleSeccion = !seccion || x.seccion === seccion;
-        const cumpleTurno = !turno || x.turno === turno;
         const fechaFila = x.fechaNormalizada;
         const cumpleFechaDesde = !fechaDesde || (fechaFila && fechaFila >= fechaDesde);
+        
+        return cumpleNivel && cumpleGrado && cumpleSeccion && cumpleFechaDesde && cumpleFechaHasta && cumpleTexto;
         const cumpleFechaHasta = !fechaHasta || (fechaFila && fechaFila <= fechaHasta);
         const cumpleTexto = !texto || x.estudiante.toLowerCase().includes(texto);
         return cumpleGrado && cumpleSeccion && cumpleTurno && cumpleFechaDesde && cumpleFechaHasta && cumpleTexto;
