@@ -115,12 +115,8 @@
                         </div>
 
                         <div class="form-grupo">
-                            <label for="turno">Turno</label>
-                            <select id="turno" required>
-                                <option value="">Selecciona grado primero</option>
-                                <option value="Mañana">Mañana</option>
-                                <option value="Tarde">Tarde</option>
-                            </select>
+                            <label for="turno">Turno (Automático)</label>
+                            <input type="text" id="turno" readonly style="background: var(--sky-light); cursor: not-allowed;">
                         </div>
                     </div>
 
@@ -156,12 +152,8 @@
                         </select>
                     </div>
                     <div class="filtro-grupo">
-                        <label for="filtroTurno">Turno</label>
-                        <select id="filtroTurno">
-                            <option value="">Todos</option>
-                            <option value="Dia">Día</option>
-                            <option value="Tarde">Tarde</option>
-                        </select>
+                        <label for="filtroBusqueda">Buscar nombre</label>
+                        <input type="text" id="filtroBusqueda" placeholder="Nombre del alumno...">
                     </div>
                 </div>
                 <div class="filtros-acciones">
@@ -210,23 +202,34 @@
 
         <!-- BARRA DERECHA -->
         <aside class="barra barra-utilidad">
-            <h2 style="margin-top: 0;">Estadísticas</h2>
-            <div class="widget-card">
-                <h3>📊 Total Alumnos</h3>
-                <p id="totalAlumnos">0 estudiantes registrados</p>
+            <h2 style="margin-top: 0;">📊 Estadísticas</h2>
+            <div class="widget-card card-estadistica">
+                <div class="estadistica-icon">🎓</div>
+                <div class="estadistica-info">
+                    <h3 id="totalAlumnos">0</h3>
+                    <p>Alumnos registrados</p>
+                </div>
             </div>
 
-            <h2>Accesos Rápidos</h2>
-            <div class="widget-card" style="padding: 10px;">
-                <a href="./notas.html" class="quick-action-btn">📝 Ver Notas</a>
-                <a href="./asistencias.html" class="quick-action-btn">📋 Ver Asistencias</a>
-                <a href="./matriculas.html" class="quick-action-btn">🎓 Matricular Alumno</a>
+            <h2>🔗 Accesos Rápidos</h2>
+            <div class="widget-card">
+                <a href="./notas.html" class="quick-action-btn">
+                    <span class="quick-icon">📝</span>
+                    <span>Ver Notas</span>
+                </a>
+                <a href="./asistencias.html" class="quick-action-btn">
+                    <span class="quick-icon">📋</span>
+                    <span>Ver Asistencias</span>
+                </a>
+                <a href="./matriculas.html" class="quick-action-btn">
+                    <span class="quick-icon">🎓</span>
+                    <span>Matricular Alumno</span>
+                </a>
             </div>
 
-            <h2>Información</h2>
+            <h2>💡 Ayuda</h2>
             <div class="widget-card">
-                <h3>💡 Tip</h3>
-                <p>Usa los filtros para buscar alumnos específicos por nivel, grado o sección.</p>
+                <p>Usa los filtros para buscar alumnos por nivel, grado o sección. El turno se asigna automáticamente.</p>
             </div>
 
             <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>

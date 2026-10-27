@@ -18,7 +18,7 @@ import {
     generarAlumnoDemoAleatorio,
     MAX_ALUMNOS_POR_AULA
 } from "./catalogo-escolar.js";
-import { inicializarBusquedaGlobal, inicializarFiltrosAvanzados } from "./busqueda-global.js";
+import { inicializarBusquedaGlobal } from "./busqueda-global.js";
 
 const usuario = initPaginaProtegida("alumnos");
 if (!usuario) {
@@ -31,42 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const soloLectura = esSoloLecturaAlumnos(usuario.cargo);
 const puedeEditar = puedeGestionarAlumnos(usuario.cargo);
-
-// Configurar filtros avanzados para alumnos
-inicializarFiltrosAvanzados({
-    campos: [
-        { id: 'nombre', label: 'Nombre del Alumno', tipo: 'texto', placeholder: 'Buscar por nombre...' },
-        { id: 'nivel', label: 'Nivel', tipo: 'select', opciones: [
-            { valor: 'Primaria', label: 'Primaria' },
-            { valor: 'Secundaria', label: 'Secundaria' }
-        ]},
-        { id: 'grado', label: 'Grado', tipo: 'select', opciones: [
-            { valor: '1', label: '1° Grado' },
-            { valor: '2', label: '2° Grado' },
-            { valor: '3', label: '3° Grado' },
-            { valor: '4', label: '4° Grado' },
-            { valor: '5', label: '5° Grado' },
-            { valor: '6', label: '6° Grado' }
-        ]},
-        { id: 'seccion', label: 'Sección', tipo: 'select', opciones: [
-            { valor: 'A', label: 'Sección A' },
-            { valor: 'B', label: 'Sección B' },
-            { valor: 'C', label: 'Sección C' }
-        ]},
-        { id: 'turno', label: 'Turno', tipo: 'select', opciones: [
-            { valor: 'Mañana', label: 'Mañana' },
-            { valor: 'Tarde', label: 'Tarde' }
-        ]}
-    ],
-    onAplicar: (valores) => {
-        console.log('Filtros aplicados:', valores);
-        // Aquí puedes implementar la lógica de filtrado
-    },
-    onLimpiar: () => {
-        console.log('Filtros limpiados');
-        // Aquí puedes implementar la lógica de limpieza
-    }
-});
 
 const formAlumno = document.getElementById("formAlumno");
 const panelFormulario = document.getElementById("panelFormulario");
@@ -82,7 +46,7 @@ const selectTurno = document.getElementById("turno");
 const filtroNivel = document.getElementById("filtroNivel");
 const filtroGrado = document.getElementById("filtroGrado");
 const filtroSeccion = document.getElementById("filtroSeccion");
-const filtroTurno = document.getElementById("filtroTurno");
+const filtroBusqueda = document.getElementById("filtroBusqueda");
 const tablaAlumnosBody = document.getElementById("tablaAlumnosBody");
 const estadoAlumnos = document.getElementById("estadoAlumnos");
 const accionesLista = document.getElementById("accionesLista");
@@ -91,12 +55,14 @@ const exportarListaBtn = document.getElementById("exportarListaBtn");
 const limpiarFormBtn = document.getElementById("limpiarFormBtn");
 const cargarDemoAlumnosBtn = document.getElementById("cargarDemoAlumnosBtn");
 const limpiarDemoAlumnosBtn = document.getElementById("limpiarDemoAlumnosBtn");
+const totalAlumnos = document.getElementById("totalAlumnos");
 
 let alumnos = [];
 
 configurarCerrarSesion();
 inicializarFormularioEscolar();
 configurarModoPorRol();
+configurarFiltros();
 
 function inicializarFormularioEscolar() {
     llenarOpcionesNivel(selectNivel);
@@ -117,6 +83,29 @@ function configurarModoPorRol() {
     } else {
         subtituloPagina.textContent = "Registro, modificacion y listado de alumnos.";
     }
+}
+
+function configurarFiltros() {
+    // Búsqueda en tiempo real
+    filtroBusqueda.addEventListener("input", () => {
+        renderTabla();
+    });
+
+    // Actualizar total de alumnos
+    function actualizarTotal() {
+        totalAlumnos.textContent = alumnos.length;
+    }
+
+    // Actualizar cuando carguen alumnos
+    const observer = new MutationObserver(() => {
+        actualizarTotal();
+    });
+
+    if (estadoAlumnos) {
+        observer.observe(estadoAlumnos, { childList: true, characterData: true });
+    }
+
+    actualizarTotal();
 }
 
 function limpiarFormulario() {
@@ -198,14 +187,20 @@ function aplicarFiltros() {
     const nivel = filtroNivel.value;
     const grado = filtroGrado.value;
     const seccion = filtroSeccion.value;
-    const turno = filtroTurno.value;
+    const busqueda = filtroBusqueda.value.trim().toLowerCase();
 
     return alumnos.filter((a) => {
         const okNivel = !nivel || a.nivel === nivel;
         const okGrado = !grado || String(a.grado) === String(grado);
         const okSeccion = !seccion || a.seccion === seccion;
-        const okTurno = !turno || a.turno === turno;
-        return okNivel && okGrado && okSeccion && okTurno;
+        
+        let okBusqueda = true;
+        if (busqueda.length >= 2) {
+            const nombreCompleto = `${a.nombres} ${a.apellidos}`.toLowerCase();
+            okBusqueda = nombreCompleto.includes(busqueda);
+        }
+        
+        return okNivel && okGrado && okSeccion && okBusqueda;
     });
 }
 

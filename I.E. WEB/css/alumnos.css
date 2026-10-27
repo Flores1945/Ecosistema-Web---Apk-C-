@@ -3,9 +3,9 @@
 /* Panel de filtros */
 .filtros-panel {
     background: var(--card-bg);
-    padding: 25px;
+    padding: 28px;
     border-radius: 14px;
-    margin-bottom: 25px;
+    margin-bottom: 28px;
     box-shadow: var(--sombra-md);
     border: 1px solid var(--border-color);
 }
@@ -14,18 +14,18 @@
     color: var(--primary-dark);
     font-size: 1.2rem;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .filtros-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    gap: 20px;
 }
 
 .filtro-grupo label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 600;
     color: var(--text-main);
     font-size: 0.875rem;
@@ -34,7 +34,7 @@
 .filtro-grupo input,
 .filtro-grupo select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px 14px;
     border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.875rem;
@@ -317,6 +317,98 @@
 .tabla-alumnos .btn-qr:hover {
     background: var(--primary-dark);
     color: white;
+}
+
+/* Widget cards mejorados */
+.widget-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);
+    border: 1px solid var(--border-color);
+}
+
+.widget-card h3 {
+    color: var(--primary-dark);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+}
+
+.widget-card p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.6;
+    padding-left: 0;
+}
+
+/* Card de estadística */
+.card-estadistica {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--sky-light) 0%, #e0f2fe 100%);
+    border: 2px solid var(--primary-sky);
+}
+
+.estadistica-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.1);
+}
+
+.estadistica-info h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 0;
+    line-height: 1;
+}
+
+.estadistica-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+}
+
+/* Quick action buttons mejorados */
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+    margin-bottom: 12px;
+}
+
+.quick-action-btn:last-child {
+    margin-bottom: 0;
+}
+
+.quick-action-btn:hover {
+    background: var(--sky-light);
+    border-color: var(--primary-sky);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+}
+
+.quick-icon {
+    font-size: 1.3rem;
 }
 
 /* Responsive */

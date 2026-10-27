@@ -123,20 +123,51 @@ const RUTA_INICIO = {
 };
 
 const MENU_ITEMS = [
-    { id: PAGINAS.PANEL, label: "Inicio", href: "./panel.html" },
-    { id: PAGINAS.ASISTENCIAS, label: "Asistencias", href: "./asistencias.html" },
-    { id: PAGINAS.NOTAS, label: "Notas", href: "./notas.html" },
-    { id: PAGINAS.BOLETAS, label: "Boletas", href: "./boletas.html" },
-    { id: PAGINAS.TAREAS, label: "Tareas", href: "./tareas.html" },
-    { id: PAGINAS.JUSTIFICACIONES, label: "Justificaciones", href: "./justificaciones.html" },
-    { id: PAGINAS.PAGOS, label: "Pagos", href: "./pagos.html" },
-    { id: PAGINAS.BIBLIOTECA, label: "Biblioteca", href: "./biblioteca.html" },
-    { id: PAGINAS.FORO, label: "Foro", href: "./foro.html" },
-    { id: PAGINAS.PSICOLOGIA, label: "Psicología", href: "./psicologia.html" },
-    { id: PAGINAS.REPORTES, label: "Reportes", href: "./reportes.html" },
-    { id: PAGINAS.ALUMNOS, label: "Registro de alumnos", href: "./alumnos.html" },
-    { id: PAGINAS.REGISTRO_PERSONAL, label: "Registrar personal", href: "./registro.html" }
+    // Navegación Principal
+    { id: PAGINAS.PANEL, label: "🏠 Inicio", href: "./panel.html", grupo: "principal" },
+    { id: PAGINAS.ASISTENCIAS, label: "📋 Asistencias", href: "./asistencias.html", grupo: "principal" },
+    { id: PAGINAS.ALUMNOS, label: "🎓 Alumnos", href: "./alumnos.html", grupo: "principal" },
+    { id: PAGINAS.REPORTES, label: "📊 Reportes", href: "./reportes.html", grupo: "principal" },
+    { id: PAGINAS.REGISTRO_PERSONAL, label: "⚙️ Registro Personal", href: "./registro.html", grupo: "principal" },
+    
+    // Académico
+    { id: PAGINAS.NOTAS, label: "📝 Notas", href: "./notas.html", grupo: "academico" },
+    { id: PAGINAS.BOLETAS, label: "📈 Boletas", href: "./boletas.html", grupo: "academico" },
+    { id: PAGINAS.TAREAS, label: "📚 Tareas", href: "./tareas.html", grupo: "academico" },
+    { id: PAGINAS.TUTORIA, label: "🧠 Tutoría", href: "./tutoria.html", grupo: "academico" },
+    
+    // Institucional
+    { id: PAGINAS.CALENDARIO, label: "📅 Calendario", href: "./calendario.html", grupo: "institucional" },
+    { id: PAGINAS.HORARIOS, label: "⏰ Horarios", href: "./horarios.html", grupo: "institucional" },
+    { id: PAGINAS.EVENTOS, label: "🎉 Eventos", href: "./eventos.html", grupo: "institucional" },
+    { id: PAGINAS.COMUNICADOS, label: "📢 Comunicados", href: "./comunicados.html", grupo: "institucional" },
+    
+    // Administrativo
+    { id: PAGINAS.MATRICULAS, label: "🎓 Matrículas", href: "./matriculas.html", grupo: "administrativo" },
+    { id: PAGINAS.PAGOS, label: "💳 Pagos", href: "./pagos.html", grupo: "administrativo" },
+    { id: PAGINAS.INVENTARIO, label: "📦 Inventario", href: "./inventario.html", grupo: "administrativo" },
+    { id: PAGINAS.DOCUMENTOS, label: "📄 Documentos", href: "./documentos.html", grupo: "administrativo" },
+    
+    // Servicios
+    { id: PAGINAS.BIBLIOTECA, label: "📖 Biblioteca", href: "./biblioteca.html", grupo: "servicios" },
+    { id: PAGINAS.SALUD, label: "🩹 Salud", href: "./salud.html", grupo: "servicios" },
+    { id: PAGINAS.PSICOLOGIA, label: "🧠 Psicología", href: "./psicologia.html", grupo: "servicios" },
+    { id: PAGINAS.AULAS, label: "🏫 Aulas", href: "./aulas.html", grupo: "servicios" },
+    
+    // Comunidad
+    { id: PAGINAS.PADRES, label: "👨‍👩‍👧 Padres (APAFA)", href: "./padres.html", grupo: "comunidad" },
+    { id: PAGINAS.JUSTIFICACIONES, label: "📋 Justificaciones", href: "./justificaciones.html", grupo: "comunidad" },
+    { id: PAGINAS.FORO, label: "💬 Foro", href: "./foro.html", grupo: "comunidad" }
 ];
+
+const GRUPOS_MENU = {
+    principal: { label: "Navegación Principal", icon: "📍" },
+    academico: { label: "Académico", icon: "📚" },
+    institucional: { label: "Institucional", icon: "🏛️" },
+    administrativo: { label: "Administrativo", icon: "💼" },
+    servicios: { label: "Servicios", icon: "🛠️" },
+    comunidad: { label: "Comunidad", icon: "👥" }
+};
 
 export function obtenerUsuario() {
     try {
@@ -245,13 +276,47 @@ export function renderMenuNavegacion(cargo, paginaActiva) {
     if (!contenedor) return;
 
     const permitidos = ACCESO_POR_CARGO[cargo] || [];
-    contenedor.innerHTML = MENU_ITEMS
-        .filter((item) => permitidos.includes(item.id))
-        .map((item) => {
+    const itemsPermitidos = MENU_ITEMS.filter((item) => permitidos.includes(item.id));
+    
+    // Agrupar items por categoría
+    const itemsPorGrupo = {};
+    itemsPermitidos.forEach((item) => {
+        const grupo = item.grupo || "principal";
+        if (!itemsPorGrupo[grupo]) {
+            itemsPorGrupo[grupo] = [];
+        }
+        itemsPorGrupo[grupo].push(item);
+    });
+
+    // Generar HTML agrupado
+    let html = "";
+    const ordenGrupos = ["principal", "academico", "institucional", "administrativo", "servicios", "comunidad"];
+    let primerGrupo = true;
+    
+    ordenGrupos.forEach((grupoKey) => {
+        const items = itemsPorGrupo[grupoKey];
+        if (!items || items.length === 0) return;
+        
+        const grupoInfo = GRUPOS_MENU[grupoKey];
+        
+        // Solo mostrar título si no es el primer grupo principal
+        if (!primerGrupo || grupoKey !== "principal") {
+            html += `<h2 class="barra-subtitulo">${grupoInfo.icon} ${grupoInfo.label}</h2>`;
+        }
+        
+        html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
+        
+        items.forEach((item) => {
             const activo = item.id === paginaActiva ? " activo" : "";
-            return `<a class="btn-funcional${activo}" href="${item.href}">${item.label}</a>`;
-        })
-        .join("");
+            const btnClass = grupoKey === "principal" ? "btn-funcional" : "btn-modulo";
+            html += `<a class="${btnClass}${activo}" href="${item.href}">${item.label}</a>`;
+        });
+        
+        html += `</div>`;
+        primerGrupo = false;
+    });
+
+    contenedor.innerHTML = html;
 }
 
 export function configurarCerrarSesion() {

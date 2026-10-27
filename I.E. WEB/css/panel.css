@@ -40,12 +40,20 @@
 
 .barra h2, .barra-subtitulo {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--primary-dark);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 18px 0 10px 0;
+    letter-spacing: 0.8px;
+    margin: 8px 0 16px 0;
     border-bottom: 2px solid var(--sky-light);
-    padding-bottom: 5px;
+    padding-bottom: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.barra h2:first-child, .barra-subtitulo:first-child {
+    margin-top: 0;
 }
 
 /* 🖥 CONTENIDO CENTRAL */

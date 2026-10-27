@@ -67,10 +67,10 @@ export function llenarOpcionesSeccion(select, textoDefault = "Selecciona", valor
 export function enlazarNivelYGrado(selectNivel, selectGrado, selectSeccion, selectTurno) {
     if (!selectNivel || !selectGrado) return;
 
-    // Estado inicial: grado, sección y turno deshabilitados
+    // Estado inicial: grado y sección deshabilitados
     selectGrado.disabled = true;
     selectSeccion.disabled = true;
-    selectTurno.disabled = true;
+    selectTurno.value = "";
 
     selectNivel.addEventListener("change", () => {
         const nivel = selectNivel.value;
@@ -81,12 +81,11 @@ export function enlazarNivelYGrado(selectNivel, selectGrado, selectSeccion, sele
         if (nivel) {
             selectGrado.disabled = false;
             selectSeccion.disabled = true;
-            selectTurno.disabled = true;
             selectTurno.value = "";
         } else {
             selectGrado.disabled = true;
             selectSeccion.disabled = true;
-            selectTurno.disabled = true;
+            selectTurno.value = "";
         }
     });
 
@@ -99,7 +98,6 @@ export function enlazarNivelYGrado(selectNivel, selectGrado, selectSeccion, sele
             configurarTurnoSegunGrado(nivel, grado, selectTurno);
         } else {
             selectSeccion.disabled = true;
-            selectTurno.disabled = true;
             selectTurno.value = "";
         }
     });
@@ -107,7 +105,7 @@ export function enlazarNivelYGrado(selectNivel, selectGrado, selectSeccion, sele
 
 function configurarTurnoSegunGrado(nivel, grado, selectTurno) {
     if (!nivel || !grado) {
-        selectTurno.disabled = true;
+        selectTurno.value = "";
         return;
     }
 
@@ -132,7 +130,6 @@ function configurarTurnoSegunGrado(nivel, grado, selectTurno) {
         }
     }
 
-    selectTurno.disabled = false;
     selectTurno.value = turnoPorDefecto;
 }
 

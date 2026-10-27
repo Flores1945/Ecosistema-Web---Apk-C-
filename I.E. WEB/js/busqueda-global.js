@@ -149,10 +149,6 @@ export function inicializarFiltrosAvanzados(config) {
     const filtrosDiv = document.createElement('div');
     filtrosDiv.className = 'filtros-avanzados';
     filtrosDiv.innerHTML = `
-        <div class="filtros-header" id="filtrosHeader">
-            <h3>🔍 Filtros Avanzados</h3>
-            <span class="filtros-toggle" id="filtrosToggle">▼</span>
-        </div>
         <div class="filtros-contenido" id="filtrosContenido">
             ${generarCamposFiltros(config)}
             <div class="filtros-botones">
