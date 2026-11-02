@@ -68,6 +68,12 @@ export async function registrarMovimiento(accion, detalle, extra = {}) {
     await guardarEvento(usuario, accion, detalle, extra);
 }
 
+// Usada por los módulos (notas, pagos, foro, etc.). Guarda la acción indicando desde qué página se hizo.
+export async function registrarAccionAuditoria(accion, detalle, extra = {}) {
+    const pagina = extra.pagina || document.body?.dataset?.pagina || "";
+    await registrarMovimiento(accion, detalle, { ...extra, pagina });
+}
+
 export function registrarVisitaPagina(paginaId) {
     const usuario = obtenerUsuario();
     if (!usuario) return Promise.resolve();

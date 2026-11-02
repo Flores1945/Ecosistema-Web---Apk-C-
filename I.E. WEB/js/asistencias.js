@@ -357,7 +357,6 @@ function refrescarVista() {
 
 filtroGrado.addEventListener("change", refrescarVista);
 filtroSeccion.addEventListener("change", refrescarVista);
-filtroTurno.addEventListener("change", refrescarVista);
 filtroFechaDesde.addEventListener("change", refrescarVista);
 filtroFechaHasta.addEventListener("change", refrescarVista);
 buscarEstudiante.addEventListener("input", refrescarVista);

@@ -143,14 +143,15 @@ function mapearAlumno(data) {
     };
 }
 
-async function cargarAlumnos() {
+async function cargarAlumnos(aviso = "") {
     estadoAlumnos.textContent = "Cargando alumnos...";
     const lista = await apiGet("/estudiantes");
     alumnos = (lista || []).map(mapearAlumno);
 
     poblarFiltros();
     renderTabla();
-    estadoAlumnos.textContent = `Total en base de datos: ${alumnos.length} alumnos.`;
+    const total = `Total en base de datos: ${alumnos.length} alumnos.`;
+    estadoAlumnos.textContent = aviso ? `${aviso} ${total}` : total;
 }
 
 function poblarFiltros() {
@@ -209,7 +210,7 @@ function renderTabla() {
     tablaAlumnosBody.innerHTML = "";
 
     if (!data.length) {
-        const cols = soloLectura ? 5 : 6;
+        const cols = soloLectura ? 6 : 7;
         tablaAlumnosBody.innerHTML = `<tr><td colspan="${cols}">No hay alumnos para los filtros seleccionados.</td></tr>`;
         return;
     }
@@ -412,6 +413,7 @@ async function guardarAlumno(event) {
 
     try {
         const id = alumnoIdInput.value;
+        let aviso = "";
         const body = {
             nombres: payload.nombres,
             apellidos: payload.apellidos,
@@ -428,7 +430,7 @@ async function guardarAlumno(event) {
                 `Modifico alumno: ${payload.nombres} ${payload.apellidos} (${payload.nivel} ${payload.grado}° ${payload.seccion}, ${payload.turno})`,
                 { pagina: "alumnos" }
             );
-            estadoAlumnos.textContent = "Alumno actualizado correctamente.";
+            aviso = "Alumno actualizado correctamente.";
         } else {
             body.fecha_matricula = new Date().toISOString().slice(0, 10);
             await apiPost("/estudiantes", body);
@@ -437,10 +439,10 @@ async function guardarAlumno(event) {
                 `Registro alumno: ${payload.nombres} ${payload.apellidos} (${payload.nivel} ${payload.grado}° ${payload.seccion}, ${payload.turno})`,
                 { pagina: "alumnos" }
             );
-            estadoAlumnos.textContent = "Alumno registrado correctamente.";
+            aviso = "Alumno registrado correctamente.";
         }
         limpiarFormulario();
-        await cargarAlumnos();
+        await cargarAlumnos(aviso);
     } catch (error) {
         estadoAlumnos.textContent = error.message || "Error al guardar el alumno en MySQL.";
         console.error(error);
@@ -459,9 +461,8 @@ async function eliminarAlumno(id) {
             `Elimino alumno: ${alumno?.nombres} ${alumno?.apellidos || id}`,
             { pagina: "alumnos" }
         );
-        estadoAlumnos.textContent = "Alumno eliminado.";
         if (alumnoIdInput.value === id) limpiarFormulario();
-        await cargarAlumnos();
+        await cargarAlumnos("Alumno eliminado.");
     } catch (error) {
         estadoAlumnos.textContent = "No se pudo eliminar el alumno.";
         console.error(error);
@@ -555,7 +556,6 @@ limpiarFormBtn?.addEventListener("click", limpiarFormulario);
 filtroNivel?.addEventListener("change", renderTabla);
 filtroGrado.addEventListener("change", renderTabla);
 filtroSeccion.addEventListener("change", renderTabla);
-filtroTurno.addEventListener("change", renderTabla);
 exportarListaBtn?.addEventListener("click", exportarListaExcel);
 cargarDemoAlumnosBtn?.addEventListener("click", cargarDemoAlumnos);
 limpiarDemoAlumnosBtn?.addEventListener("click", limpiarDemoAlumnos);

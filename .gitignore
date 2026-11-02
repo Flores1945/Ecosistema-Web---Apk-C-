@@ -1,0 +1,13 @@
+# Archivos de compilación (se regeneran solos)
+bin/
+obj/
+.vs/
+*.user
+
+# Instaladores
+*.apk
+*.aab
+
+# Secretos y dependencias
+.env
+node_modules/
