@@ -61,24 +61,41 @@ async function run() {
         }
     }
 
-    const hash = await bcrypt.hash("admin123", 10);
     const [existentes] = await conn.query(
-        "SELECT id, password FROM usuarios WHERE email = ? LIMIT 1",
+        "SELECT id FROM usuarios WHERE email = ? LIMIT 1",
         ["director@liceo.edu"]
     );
 
     if (!existentes.length) {
+        const hash = await bcrypt.hash("admin123", 10);
         await conn.query(
             `INSERT INTO usuarios (email, password, nombres, apellidos, cargo, telefono)
              VALUES (?, ?, ?, ?, ?, ?)`,
             ["director@liceo.edu", hash, "Juan", "Pérez", "Director", "987654321"]
         );
         console.log("Usuario director creado: director@liceo.edu / admin123");
-    } else if (!String(existentes[0].password || "").startsWith("$2")) {
-        await conn.query("UPDATE usuarios SET password = ? WHERE id = ?", [hash, existentes[0].id]);
-        console.log("Contraseña del director actualizada a bcrypt.");
+        console.log("⚠ Esa clave es pública. Cámbiala ya:  npm run set-password -- director@liceo.edu TuNuevaClave");
     } else {
         console.log("El usuario director ya existía.");
+    }
+
+    // La API compara contraseñas con bcrypt. Si alguna cuenta se creó con otro script
+    // y quedó en texto plano, se convierte aquí para que pueda iniciar sesión.
+    const [todos] = await conn.query("SELECT id, email, password FROM usuarios");
+    for (const usuario of todos) {
+        const actual = String(usuario.password || "");
+        if (actual.startsWith("$2")) continue;
+
+        if (!actual || /^[0-9a-f]{64}$/i.test(actual)) {
+            console.warn(
+                `⚠ ${usuario.email}: su clave está en un formato que no se puede convertir. ` +
+                `Asígnale una nueva:  npm run set-password -- ${usuario.email} NuevaClave`
+            );
+            continue;
+        }
+
+        await conn.query("UPDATE usuarios SET password = ? WHERE id = ?", [await bcrypt.hash(actual, 10), usuario.id]);
+        console.log(`Clave de ${usuario.email} convertida a bcrypt (estaba en texto plano; sigue siendo la misma).`);
     }
 
     await conn.end();

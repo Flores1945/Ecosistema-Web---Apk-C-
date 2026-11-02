@@ -122,7 +122,6 @@ module.exports = {
     },
     auditoria: {
         table: "auditoria",
-        fields: ["usuario_id", "accion", "tabla_afectada", "registro_id", "valores_anteriores", "valores_nuevos", "ip"],
-        readOnly: false
+        fields: ["usuario_id", "accion", "tabla_afectada", "registro_id", "valores_anteriores", "valores_nuevos", "ip"]
     }
 };

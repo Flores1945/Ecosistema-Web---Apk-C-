@@ -27,9 +27,9 @@ const totalAsistenciasResumen = document.getElementById("totalAsistenciasResumen
 const aulasResumen = document.getElementById("aulasResumen");
 const cargoResumen = document.getElementById("cargoResumen");
 
-bienvenidaTexto.textContent = `Bienvenido(a), ${usuario.nombresCompletos}`;
-detalleUsuario.textContent = `Cargo: ${usuario.cargo} | Correo: ${usuario.correo}`;
-cargoResumen.textContent = usuario.cargo;
+if (bienvenidaTexto) bienvenidaTexto.textContent = `Bienvenido(a), ${usuario.nombresCompletos}`;
+if (detalleUsuario) detalleUsuario.textContent = `Cargo: ${usuario.cargo} | Correo: ${usuario.correo}`;
+if (cargoResumen) cargoResumen.textContent = usuario.cargo;
 
 configurarCerrarSesion();
 
@@ -62,12 +62,13 @@ if (accesosRapidos) {
 
 const resumenGrid = document.querySelector(".resumen-grid");
 if (resumenGrid && (esAlumno(usuario.cargo) || esApoderado(usuario.cargo))) {
-    resumenGrid.querySelector("article:nth-child(1) h3").textContent = esAlumno(usuario.cargo)
-        ? "Mi asistencia"
-        : "Asistencia de hijos";
-    resumenGrid.querySelector("article:nth-child(2) h3").textContent = esDocente(usuario.cargo)
-        ? "Aulas a cargo"
-        : "Cursos visibles";
+    const etiquetas = resumenGrid.querySelectorAll(".label");
+    if (etiquetas[0]) {
+        etiquetas[0].textContent = esAlumno(usuario.cargo) ? "Mi asistencia" : "Asistencia de hijos";
+    }
+    if (etiquetas[1]) {
+        etiquetas[1].textContent = esDocente(usuario.cargo) ? "Aulas a cargo" : "Cursos visibles";
+    }
 }
 
 async function cargarResumen() {
@@ -75,11 +76,11 @@ async function cargarResumen() {
         apiGet("/asistencias"),
         apiGet("/aulas")
     ]);
-    totalAsistenciasResumen.textContent = String((asistencias || []).length);
-    aulasResumen.textContent = String((aulas || []).length);
+    if (totalAsistenciasResumen) totalAsistenciasResumen.textContent = String((asistencias || []).length);
+    if (aulasResumen) aulasResumen.textContent = String((aulas || []).length);
 }
 
 cargarResumen().catch(() => {
-    totalAsistenciasResumen.textContent = "-";
-    aulasResumen.textContent = "-";
+    if (totalAsistenciasResumen) totalAsistenciasResumen.textContent = "-";
+    if (aulasResumen) aulasResumen.textContent = "-";
 });
