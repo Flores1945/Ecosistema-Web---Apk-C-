@@ -289,9 +289,15 @@ function mostrarQRAlumno(alumno) {
         turno: alumno.turno
     });
     
-    // Limpiar QR anterior
+    // Limpiar QR anterior y abrir la ventana primero (así siempre se ve algo)
     codigoQR.innerHTML = "";
-    
+    modalQR.style.display = "flex";
+
+    if (typeof QRCode === "undefined" || !QRCode.toCanvas) {
+        codigoQR.innerHTML = "<p>No se pudo cargar la librería de QR.</p>";
+        return;
+    }
+
     // Generar QR
     QRCode.toCanvas(datosQR, { 
         width: 250,
@@ -308,9 +314,7 @@ function mostrarQRAlumno(alumno) {
         }
         codigoQR.appendChild(canvas);
     });
-    
-    // Mostrar modal
-    modalQR.style.display = "flex";
+
 }
 
 cerrarModalQR.addEventListener("click", () => {
