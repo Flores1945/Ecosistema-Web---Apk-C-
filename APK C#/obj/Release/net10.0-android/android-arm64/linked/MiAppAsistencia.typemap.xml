@@ -1,0 +1,8 @@
+<api type="release" assembly-name="MiAppAsistencia" mvid="081525c6b2404c849042192613cbf0e9">
+  <module assembly-name="MiAppAsistencia" mvid="081525c6b2404c849042192613cbf0e9" mvid-bytes="xiUVCECyhEyQQhkmE8vw6Q==">
+    <types-scratch>
+      <entry key="crc64350059fb88b612a0/MainActivity" java-name="crc64350059fb88b612a0/MainActivity" managed-type-name="MiAppAsistencia.MainActivity" token="33554455" />
+      <entry key="crc64350059fb88b612a0/MainApplication" java-name="crc64350059fb88b612a0/MainApplication" managed-type-name="MiAppAsistencia.MainApplication" token="33554456" />
+    </types-scratch>
+  </module>
+</api>

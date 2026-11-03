@@ -150,7 +150,7 @@
 
 .tabla-alumnos {
     width: 100%;
-    min-width: 600px;
+    min-width: 700px;
     border-collapse: collapse;
 }
 
@@ -160,7 +160,8 @@
 }
 
 .tabla-alumnos th {
-    padding: 15px;
+    padding: 13px 10px;
+    white-space: nowrap;
     text-align: left;
     font-weight: 600;
     font-size: 0.875rem;
@@ -176,7 +177,8 @@
 }
 
 .tabla-alumnos td {
-    padding: 15px;
+    padding: 11px 10px;
+    white-space: nowrap;
     font-size: 0.875rem;
     color: var(--text-main);
 }
@@ -322,7 +324,7 @@
 /* Widget cards mejorados */
 .widget-card {
     background: white;
-    padding: 24px;
+    padding: 16px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(2, 132, 199, 0.06);
     border: 1px solid var(--border-color);
@@ -348,7 +350,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px;
+    padding: 14px 16px;
     background: linear-gradient(135deg, var(--sky-light) 0%, #e0f2fe 100%);
     border: 2px solid var(--primary-sky);
 }
@@ -384,7 +386,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 18px;
+    padding: 10px 14px;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 10px;
@@ -393,7 +395,7 @@
     font-weight: 500;
     font-size: 0.9rem;
     transition: var(--transition-smooth);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .quick-action-btn:last-child {
@@ -425,4 +427,24 @@
     .formulario-acciones .btn-secundario {
         width: 100%;
     }
+}
+
+/* Tabla de alumnos: cabe completa en la columna central de una laptop (sin scroll horizontal) */
+.tabla-alumnos {
+    min-width: 0;
+}
+
+.tabla-alumnos th,
+.tabla-alumnos td {
+    padding: 10px 7px;
+    font-size: 0.82rem;
+}
+
+.tabla-alumnos .btn-tabla {
+    padding: 4px 7px;
+    font-size: 0.72rem;
+}
+
+.tabla-alumnos .celda-acciones {
+    display: table-cell;
 }

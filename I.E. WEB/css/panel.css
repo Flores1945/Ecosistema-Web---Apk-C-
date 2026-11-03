@@ -802,7 +802,14 @@
         order: 3;
     }
 
-    .barra-izquierda nav,
+    /* El menú lo dibuja el JS: dentro del <nav> van los títulos (h2) y los grupos (div).
+       El <nav> se queda en columna y solo cada grupo de botones se acomoda en fila. */
+    .barra-izquierda nav {
+        flex-direction: column !important;
+        flex-wrap: nowrap;
+    }
+
+    .barra-izquierda nav > div,
     .barra-izquierda > div {
         flex-direction: row !important;
         flex-wrap: wrap;
@@ -851,4 +858,119 @@
 
 .tabla-scroll > .modulo-table {
     min-width: 600px;
+}
+
+/* =====================================================
+   AJUSTES DE ORDEN Y ACABADO
+   ===================================================== */
+
+/* Barras laterales: scroll delgado y discreto (en Windows el predeterminado es muy grueso) */
+.barra {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-sky) transparent;
+}
+
+.barra::-webkit-scrollbar {
+    width: 6px;
+}
+
+.barra::-webkit-scrollbar-thumb {
+    background: var(--primary-sky);
+    border-radius: 6px;
+}
+
+/* Cuadros de estado: si no tienen texto no deben verse como una barra vacía */
+.estado-wrap p:empty,
+.estado-alumnos:empty,
+#estadoAsistencia:empty,
+#resumenFiltrado:empty {
+    display: none;
+}
+
+.estado-wrap:not(:has(p:not(:empty))) {
+    display: none;
+}
+
+/* Título de sección con subtítulo a la derecha: que se acomode si no hay espacio */
+.section-header-flex {
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+/* Tablas con desplazamiento horizontal: que se note que se pueden deslizar */
+.tabla-scroll,
+.tabla-wrap,
+.tabla-modulo-wrap,
+.tabla-alumnos-wrap,
+.tabla-asistencias-wrap,
+.tabla-reportes-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-sky) var(--sky-light);
+}
+
+.tabla-scroll::-webkit-scrollbar,
+.tabla-wrap::-webkit-scrollbar,
+.tabla-modulo-wrap::-webkit-scrollbar,
+.tabla-alumnos-wrap::-webkit-scrollbar,
+.tabla-asistencias-wrap::-webkit-scrollbar,
+.tabla-reportes-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb,
+.tabla-wrap::-webkit-scrollbar-thumb,
+.tabla-modulo-wrap::-webkit-scrollbar-thumb,
+.tabla-alumnos-wrap::-webkit-scrollbar-thumb,
+.tabla-asistencias-wrap::-webkit-scrollbar-thumb,
+.tabla-reportes-wrap::-webkit-scrollbar-thumb {
+    background: var(--primary-sky);
+    border-radius: 8px;
+}
+
+.tabla-scroll::-webkit-scrollbar-track,
+.tabla-wrap::-webkit-scrollbar-track,
+.tabla-modulo-wrap::-webkit-scrollbar-track,
+.tabla-alumnos-wrap::-webkit-scrollbar-track,
+.tabla-asistencias-wrap::-webkit-scrollbar-track,
+.tabla-reportes-wrap::-webkit-scrollbar-track {
+    background: var(--sky-light);
+}
+
+/* Horarios: celdas compactas y la hora nunca se parte en varias líneas */
+.tabla-horario th,
+.tabla-horario td {
+    padding: 11px 10px;
+    font-size: 0.82rem;
+}
+
+.tabla-horario th:first-child,
+.tabla-horario td:first-child {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.tabla-scroll > .tabla-horario {
+    min-width: 560px;
+}
+
+/* Las barras laterales aprovechan todo el alto de la pantalla (así "Cerrar sesión" no queda escondido) */
+.barra-izquierda,
+.barra-utilidad {
+    max-height: calc(100vh - 48px);
+}
+
+@media (max-width: 1200px) {
+    .barra-utilidad {
+        max-height: none;
+    }
+}
+
+/* "Cerrar sesión" siempre visible al fondo de la barra, aunque la barra tenga que desplazarse */
+.barra .btn-salir {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    flex-shrink: 0;
+    background: #fff5f5;
+    box-shadow: 0 -8px 10px -4px var(--sidebar-bg, #fff);
 }

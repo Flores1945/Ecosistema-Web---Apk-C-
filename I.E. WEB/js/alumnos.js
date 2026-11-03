@@ -39,6 +39,7 @@ const subtituloPagina = document.getElementById("subtituloPagina");
 const alumnoIdInput = document.getElementById("alumnoId");
 const nombresInput = document.getElementById("nombres");
 const apellidosInput = document.getElementById("apellidos");
+const dniInput = document.getElementById("dni");
 const selectNivel = document.getElementById("nivel");
 const selectGrado = document.getElementById("grado");
 const selectSeccion = document.getElementById("seccion");
@@ -120,6 +121,7 @@ function cargarFormularioEdicion(alumno) {
     alumnoIdInput.value = alumno.id;
     nombresInput.value = alumno.nombres || "";
     apellidosInput.value = alumno.apellidos || "";
+    dniInput.value = alumno.dni || "";
     selectNivel.value = alumno.nivel || "";
     llenarOpcionesGrado(selectGrado, selectNivel.value, "Selecciona", alumno.grado);
     selectSeccion.value = alumno.seccion;
@@ -143,14 +145,15 @@ function mapearAlumno(data) {
     };
 }
 
-async function cargarAlumnos() {
+async function cargarAlumnos(aviso = "") {
     estadoAlumnos.textContent = "Cargando alumnos...";
     const lista = await apiGet("/estudiantes");
     alumnos = (lista || []).map(mapearAlumno);
 
     poblarFiltros();
     renderTabla();
-    estadoAlumnos.textContent = `Total en base de datos: ${alumnos.length} alumnos.`;
+    const total = `Total en base de datos: ${alumnos.length} alumnos.`;
+    estadoAlumnos.textContent = aviso ? `${aviso} ${total}` : total;
 }
 
 function poblarFiltros() {
@@ -209,7 +212,7 @@ function renderTabla() {
     tablaAlumnosBody.innerHTML = "";
 
     if (!data.length) {
-        const cols = soloLectura ? 5 : 6;
+        const cols = soloLectura ? 6 : 7;
         tablaAlumnosBody.innerHTML = `<tr><td colspan="${cols}">No hay alumnos para los filtros seleccionados.</td></tr>`;
         return;
     }
@@ -288,9 +291,15 @@ function mostrarQRAlumno(alumno) {
         turno: alumno.turno
     });
     
-    // Limpiar QR anterior
+    // Limpiar QR anterior y abrir la ventana primero (así siempre se ve algo)
     codigoQR.innerHTML = "";
-    
+    modalQR.style.display = "flex";
+
+    if (typeof QRCode === "undefined" || !QRCode.toCanvas) {
+        codigoQR.innerHTML = "<p>No se pudo cargar la librería de QR.</p>";
+        return;
+    }
+
     // Generar QR
     QRCode.toCanvas(datosQR, { 
         width: 250,
@@ -307,9 +316,7 @@ function mostrarQRAlumno(alumno) {
         }
         codigoQR.appendChild(canvas);
     });
-    
-    // Mostrar modal
-    modalQR.style.display = "flex";
+
 }
 
 cerrarModalQR.addEventListener("click", () => {
@@ -339,6 +346,7 @@ function validarFormularioAlumno() {
     const nivel = selectNivel.value;
     const grado = selectGrado.value;
     const gradosValidos = gradosPorNivel(nivel);
+    const dni = dniInput.value.trim();
 
     if (!nivel || !gradosValidos.includes(grado)) {
         estadoAlumnos.textContent = "Selecciona nivel y un grado valido para ese nivel.";
@@ -352,6 +360,16 @@ function validarFormularioAlumno() {
 
     if (!apellidosInput.value.trim()) {
         estadoAlumnos.textContent = "Los apellidos son obligatorios.";
+        return false;
+    }
+
+    if (!dni) {
+        estadoAlumnos.textContent = "El DNI es obligatorio.";
+        return false;
+    }
+
+    if (!/^\d{7}$/.test(dni)) {
+        estadoAlumnos.textContent = "El DNI debe tener exactamente 7 dígitos numéricos.";
         return false;
     }
 
@@ -389,6 +407,7 @@ async function guardarAlumno(event) {
     const payload = {
         nombres: nombresInput.value.trim(),
         apellidos: apellidosInput.value.trim(),
+        dni: dniInput.value.trim(),
         nivel: selectNivel.value,
         grado: selectGrado.value,
         seccion: selectSeccion.value,
@@ -412,6 +431,7 @@ async function guardarAlumno(event) {
 
     try {
         const id = alumnoIdInput.value;
+        let aviso = "";
         const body = {
             nombres: payload.nombres,
             apellidos: payload.apellidos,
@@ -428,7 +448,7 @@ async function guardarAlumno(event) {
                 `Modifico alumno: ${payload.nombres} ${payload.apellidos} (${payload.nivel} ${payload.grado}° ${payload.seccion}, ${payload.turno})`,
                 { pagina: "alumnos" }
             );
-            estadoAlumnos.textContent = "Alumno actualizado correctamente.";
+            aviso = "Alumno actualizado correctamente.";
         } else {
             body.fecha_matricula = new Date().toISOString().slice(0, 10);
             await apiPost("/estudiantes", body);
@@ -437,10 +457,10 @@ async function guardarAlumno(event) {
                 `Registro alumno: ${payload.nombres} ${payload.apellidos} (${payload.nivel} ${payload.grado}° ${payload.seccion}, ${payload.turno})`,
                 { pagina: "alumnos" }
             );
-            estadoAlumnos.textContent = "Alumno registrado correctamente.";
+            aviso = "Alumno registrado correctamente.";
         }
         limpiarFormulario();
-        await cargarAlumnos();
+        await cargarAlumnos(aviso);
     } catch (error) {
         estadoAlumnos.textContent = error.message || "Error al guardar el alumno en MySQL.";
         console.error(error);
@@ -459,9 +479,8 @@ async function eliminarAlumno(id) {
             `Elimino alumno: ${alumno?.nombres} ${alumno?.apellidos || id}`,
             { pagina: "alumnos" }
         );
-        estadoAlumnos.textContent = "Alumno eliminado.";
         if (alumnoIdInput.value === id) limpiarFormulario();
-        await cargarAlumnos();
+        await cargarAlumnos("Alumno eliminado.");
     } catch (error) {
         estadoAlumnos.textContent = "No se pudo eliminar el alumno.";
         console.error(error);
@@ -555,7 +574,6 @@ limpiarFormBtn?.addEventListener("click", limpiarFormulario);
 filtroNivel?.addEventListener("change", renderTabla);
 filtroGrado.addEventListener("change", renderTabla);
 filtroSeccion.addEventListener("change", renderTabla);
-filtroTurno.addEventListener("change", renderTabla);
 exportarListaBtn?.addEventListener("click", exportarListaExcel);
 cargarDemoAlumnosBtn?.addEventListener("click", cargarDemoAlumnos);
 limpiarDemoAlumnosBtn?.addEventListener("click", limpiarDemoAlumnos);

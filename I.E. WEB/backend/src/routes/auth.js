@@ -3,11 +3,39 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { query } = require("../db");
 const config = require("../config");
-const { autenticar, nombresCompletos } = require("../middleware/auth");
+const { autenticar, exigirDirectiva, nombresCompletos } = require("../middleware/auth");
 const { splitNombreCompleto, registrarAuditoria } = require("../helpers");
 
 const router = express.Router();
 const CARGOS = ["Director", "Subdirector", "Docente", "Sub Docente", "Alumno", "Padre", "Apafa"];
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Hash de relleno: así tardar lo mismo si el correo no existe (no revela qué correos hay registrados)
+const HASH_FALSO = bcrypt.hashSync("relleno-para-igualar-tiempos", 10);
+
+// Límite de intentos de login: 10 fallos por correo+IP cada 15 minutos
+const VENTANA_MS = 15 * 60 * 1000;
+const MAX_FALLOS = 10;
+const fallos = new Map();
+
+function bloqueado(clave) {
+    const registro = fallos.get(clave);
+    if (!registro) return false;
+    if (Date.now() - registro.desde > VENTANA_MS) {
+        fallos.delete(clave);
+        return false;
+    }
+    return registro.n >= MAX_FALLOS;
+}
+
+function anotarFallo(clave) {
+    const registro = fallos.get(clave);
+    if (!registro || Date.now() - registro.desde > VENTANA_MS) {
+        fallos.set(clave, { n: 1, desde: Date.now() });
+    } else {
+        registro.n += 1;
+    }
+}
 
 function tokenDe(usuario) {
     return jwt.sign(
@@ -19,7 +47,7 @@ function tokenDe(usuario) {
             apellidos: usuario.apellidos
         },
         config.jwtSecret,
-        { expiresIn: "12h" }
+        { expiresIn: "12h", algorithm: "HS256" }
     );
 }
 
@@ -39,17 +67,25 @@ function perfilPublico(usuario) {
 
 router.post("/login", async (req, res) => {
     try {
-        const email = String(req.body.email || req.body.correo || "").trim().toLowerCase();
-        const password = req.body.password || req.body.clave || "";
+        const body = req.body || {};
+        const email = String(body.email || body.correo || "").trim().toLowerCase();
+        const password = String(body.password || body.clave || "");
 
         if (!email || !password) {
             return res.status(400).json({ error: "Completa correo y contraseña." });
         }
 
+        const clave = `${req.ip}|${email}`;
+        if (bloqueado(clave)) {
+            return res.status(429).json({ error: "Demasiados intentos. Espera 15 minutos e inténtalo de nuevo." });
+        }
+
         const rows = await query("SELECT * FROM usuarios WHERE email = ? LIMIT 1", [email]);
         const usuario = rows[0];
 
-        if (!usuario) {
+        const ok = await bcrypt.compare(password, usuario ? String(usuario.password) : HASH_FALSO);
+        if (!usuario || !ok) {
+            anotarFallo(clave);
             return res.status(401).json({ error: "Correo o contraseña incorrectos." });
         }
 
@@ -57,11 +93,7 @@ router.post("/login", async (req, res) => {
             return res.status(403).json({ error: "La cuenta está inactiva." });
         }
 
-        const ok = await bcrypt.compare(password, usuario.password);
-        if (!ok) {
-            return res.status(401).json({ error: "Correo o contraseña incorrectos." });
-        }
-
+        fallos.delete(clave);
         res.json({
             token: tokenDe(usuario),
             usuario: perfilPublico(usuario)
@@ -72,18 +104,20 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.post("/register", async (req, res) => {
+// Solo la directiva puede dar de alta personal. (Antes cualquiera podía crear una cuenta de Director.)
+router.post("/register", autenticar, exigirDirectiva, async (req, res) => {
     try {
-        const email = String(req.body.email || req.body.correo || "").trim().toLowerCase();
-        const password = req.body.password || req.body.clave || "";
-        const cargo = req.body.cargo;
-        const telefono = req.body.telefono || req.body.celular || null;
-        const dni = req.body.dni || null;
+        const body = req.body || {};
+        const email = String(body.email || body.correo || "").trim().toLowerCase();
+        const password = String(body.password || body.clave || "");
+        const cargo = body.cargo;
+        const telefono = body.telefono || body.celular || null;
+        const dni = body.dni || null;
 
-        let nombres = req.body.nombres;
-        let apellidos = req.body.apellidos;
-        if (!nombres && req.body.nombresCompletos) {
-            const partido = splitNombreCompleto(req.body.nombresCompletos);
+        let nombres = body.nombres;
+        let apellidos = body.apellidos;
+        if (!nombres && body.nombresCompletos) {
+            const partido = splitNombreCompleto(body.nombresCompletos);
             nombres = partido.nombres;
             apellidos = partido.apellidos;
         }
@@ -91,11 +125,18 @@ router.post("/register", async (req, res) => {
         if (!email || !password || !nombres || !apellidos || !cargo) {
             return res.status(400).json({ error: "Faltan datos obligatorios." });
         }
+        if (!EMAIL.test(email)) {
+            return res.status(400).json({ error: "El correo no es válido." });
+        }
         if (password.length < 6) {
             return res.status(400).json({ error: "La contraseña debe tener mínimo 6 caracteres." });
         }
         if (!CARGOS.includes(cargo)) {
             return res.status(400).json({ error: "Cargo no válido." });
+        }
+        // Un Subdirector no puede crear cuentas con más poder que él
+        if (req.usuario.cargo !== "Director" && ["Director", "Subdirector"].includes(cargo)) {
+            return res.status(403).json({ error: "Solo el Director puede crear cuentas de la directiva." });
         }
 
         const existe = await query("SELECT id FROM usuarios WHERE email = ? LIMIT 1", [email]);
@@ -120,14 +161,12 @@ router.post("/register", async (req, res) => {
             activo: 1
         };
 
-        if (req.usuario) {
-            await registrarAuditoria(query, req, {
-                accion: "CREAR",
-                tabla: "usuarios",
-                registroId: creado.id,
-                nuevo: { email, nombres, apellidos, cargo, dni }
-            });
-        }
+        await registrarAuditoria(query, req, {
+            accion: "CREAR",
+            tabla: "usuarios",
+            registroId: creado.id,
+            nuevo: { email, nombres, apellidos, cargo, dni }
+        });
 
         res.status(201).json({ usuario: perfilPublico(creado) });
     } catch (error) {

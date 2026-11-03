@@ -65,7 +65,10 @@ export function llenarOpcionesSeccion(select, textoDefault = "Selecciona", valor
 }
 
 export function enlazarNivelYGrado(selectNivel, selectGrado, selectSeccion, selectTurno) {
-    if (!selectNivel || !selectGrado) return;
+    if (!selectNivel || !selectGrado || !selectSeccion) return;
+
+    // Páginas como Asistencias solo filtran: no tienen campo de turno, se usa uno "de relleno"
+    selectTurno = selectTurno || { value: "" };
 
     // Estado inicial: grado y sección deshabilitados
     selectGrado.disabled = true;

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/panel.css">
     <link rel="stylesheet" href="../css/alumnos.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="../js/vendor/qrcode.min.js"></script>
 </head>
 <body data-pagina="alumnos">
 
@@ -70,13 +70,13 @@
             <!-- BANNER DE PÁGINA -->
             <div class="welcome-banner">
                 <h1>🎒 Registro de Alumnos</h1>
-                <p>Gestión y consulta de estudiantes del plantel</p>
+                <p id="subtituloPagina">Gestión y consulta de estudiantes del plantel</p>
                 <div class="badge-role">Sistema de Gestión Escolar</div>
             </div>
 
             <!-- FORMULARIO DE REGISTRO -->
-            <div class="formulario-alumno">
-                <h2>📝 Nuevo Alumno</h2>
+            <div class="formulario-alumno" id="panelFormulario">
+                <h2 id="tituloFormulario">📝 Nuevo Alumno</h2>
                 <form id="formAlumno">
                     <input type="hidden" id="alumnoId">
 
@@ -89,6 +89,11 @@
                         <div class="form-grupo">
                             <label for="apellidos">Apellidos</label>
                             <input type="text" id="apellidos" required placeholder="Ej: Pérez López">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="dni">DNI (7 dígitos)</label>
+                            <input type="text" id="dni" required placeholder="Ej: 1234567" maxlength="7" pattern="[0-9]{7}" title="Debe ser 7 dígitos numéricos">
                         </div>
 
                         <div class="form-grupo">
@@ -156,7 +161,7 @@
                         <input type="text" id="filtroBusqueda" placeholder="Nombre del alumno...">
                     </div>
                 </div>
-                <div class="filtros-acciones">
+                <div class="filtros-acciones" id="accionesLista">
                     <button type="button" class="btn-funcional-inline" id="exportarListaBtn">📊 Exportar Excel</button>
                     <button type="button" class="btn-secundario" id="cargarDemoAlumnosBtn">📝 Cargar Demo</button>
                     <button type="button" class="btn-secundario" id="limpiarDemoAlumnosBtn">🗑️ Limpiar Demo</button>
@@ -177,7 +182,6 @@
                     </div>
                 </div>
             </div>
-            </div>
 
             <!-- TABLA DE ALUMNOS -->
             <div class="tabla-alumnos-wrap">
@@ -190,7 +194,7 @@
                             <th>Grado</th>
                             <th>Sección</th>
                             <th>Turno</th>
-                            <th>Acciones</th>
+                            <th id="colAcciones">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tablaAlumnosBody"></tbody>

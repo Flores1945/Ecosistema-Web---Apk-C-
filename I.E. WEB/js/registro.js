@@ -3,8 +3,11 @@ import { obtenerUsuario, esAccesoTotal, rutaInicioPorCargo } from "./auth-roles.
 import { registrarMovimiento } from "./auditoria.js";
 import { inicializarBusquedaGlobal } from "./busqueda-global.js";
 
+// Solo la directiva con sesión iniciada puede dar de alta personal (el servidor también lo exige)
 const sesion = obtenerUsuario();
-if (sesion && !esAccesoTotal(sesion.cargo)) {
+if (!sesion) {
+    window.location.href = "./index.html";
+} else if (!esAccesoTotal(sesion.cargo)) {
     window.location.href = rutaInicioPorCargo(sesion.cargo);
 }
 
