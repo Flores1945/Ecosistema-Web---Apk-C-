@@ -1,146 +1,128 @@
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using MiAppAsistencia.Models;
 
 namespace MiAppAsistencia.Services
 {
+    /// <summary>
+    /// Datos de la app contra el backend Node.js local (misma red WiFi del colegio).
+    /// La APK se autentica con el idToken de Firebase; el backend lo verifica
+    /// con Firebase Admin y lee/escribe MySQL directamente.
+    /// </summary>
     public class DataService
     {
+        // PC del backend en la red local del colegio
+        private const string BaseUrl = "http://192.168.1.37:3000/api/apk";
+
         private readonly HttpClient _httpClient;
-        private readonly string _apiBaseUrl = "http://192.168.100.8:3000/api/public";
-
-        private static List<Usuario> _usuarios = new List<Usuario>
-        {
-            new Usuario { Id = 1, Correo = "admin@liceo.edu", Contrasena = "admin123", Nombre = "Administrador", Rol = "Admin" },
-            new Usuario { Id = 2, Correo = "profesor@liceo.edu", Contrasena = "profesor123", Nombre = "Profesor Juan", Rol = "Profesor" }
-        };
-
-        private static List<Asistencia> _asistencias = new List<Asistencia>();
+        private readonly List<Asistencia> _asistencias = new();
+        private readonly HashSet<int> _registradosHoy = new();
+        private string _fechaCargada = "";
+        private List<Estudiante>? _cacheEstudiantes;
+        private DateTime _cacheEstudiantesFecha = DateTime.MinValue;
+        public string? UltimoError { get; private set; }
 
         public DataService()
         {
-            _httpClient = new HttpClient();
+            _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         }
 
-        // Métodos para Usuarios
-        public Usuario? ValidarUsuario(string correo, string contrasena)
+        private async Task<HttpRequestMessage> CrearRequestAsync(HttpMethod metodo, string url, object? body = null)
         {
-            return _usuarios.FirstOrDefault(u => u.Correo == correo && u.Contrasena == contrasena);
+            var request = new HttpRequestMessage(metodo, url);
+            var token = await SesionFirebase.ObtenerTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            if (body is not null)
+                request.Content = JsonContent.Create(body);
+            return request;
         }
 
-        // Métodos para Estudiantes (con conexión a API)
+        private async Task<JsonElement?> GetJsonAsync(string url)
+        {
+            using var request = await CrearRequestAsync(HttpMethod.Get, url);
+            using var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var texto = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Backend GET {url} -> {(int)response.StatusCode}: {texto[..Math.Min(300, texto.Length)]}");
+                return null;
+            }
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<JsonElement>(json);
+        }
+
+        // ---------- Estudiantes ----------
+
+        private static Estudiante DocAEstudiante(JsonElement doc)
+        {
+            var nivel = doc.TryGetProperty("nivel", out var n) ? n.GetString() ?? "" : "";
+            var grado = doc.TryGetProperty("grado", out var g) && g.TryGetInt32(out var gv) ? gv : 0;
+            var seccion = doc.TryGetProperty("seccion", out var s) ? s.GetString() ?? "" : "";
+            var id = doc.TryGetProperty("id", out var i) && i.TryGetInt32(out var iv) ? iv : 0;
+            var dni = doc.TryGetProperty("dni", out var d) ? d.GetString() : null;
+
+            return new Estudiante
+            {
+                Id = id,
+                Nombre = doc.TryGetProperty("nombres", out var no) ? no.GetString() ?? "" : "",
+                Apellido = doc.TryGetProperty("apellidos", out var ap) ? ap.GetString() ?? "" : "",
+                Nivel = nivel,
+                Grado = grado,
+                Seccion = seccion,
+                Turno = doc.TryGetProperty("turno", out var t) ? t.GetString() ?? "" : "",
+                Aula = $"{(nivel.Length > 0 ? nivel[0].ToString() : "")}{grado}{seccion}",
+                CodigoQR = string.IsNullOrWhiteSpace(dni) ? id.ToString() : dni
+            };
+        }
+
         public async Task<List<Estudiante>> ObtenerTodosEstudiantes()
         {
-            var estudiantes = new List<Estudiante>();
+            if (_cacheEstudiantes is not null && DateTime.Now - _cacheEstudiantesFecha < TimeSpan.FromMinutes(5))
+                return _cacheEstudiantes;
 
             try
             {
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/estudiantes");
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<List<JsonElement>>(json);
+                var data = await GetJsonAsync($"{BaseUrl}/estudiantes");
+                var lista = new List<Estudiante>();
+                if (data is not null && data.Value.TryGetProperty("estudiantes", out var docs))
+                    foreach (var doc in docs.EnumerateArray())
+                        lista.Add(DocAEstudiante(doc));
 
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        var nivelStr = item.TryGetProperty("nivel", out var nivelVal) ? nivelVal.GetString() ?? "" : "";
-                        var gradoVal = item.TryGetProperty("grado", out var grado) ? grado.GetInt32() : 0;
-                        var seccionStr = item.TryGetProperty("seccion", out var seccion) ? seccion.GetString() ?? "" : "";
-                        
-                        estudiantes.Add(new Estudiante
-                        {
-                            Id = item.GetProperty("id").GetInt32(),
-                            Nombre = item.TryGetProperty("nombres", out var nombre) ? nombre.GetString() ?? "" : "",
-                            Apellido = item.TryGetProperty("apellidos", out var apellido) ? apellido.GetString() ?? "" : "",
-                            Nivel = nivelStr,
-                            Grado = gradoVal,
-                            Seccion = seccionStr,
-                            Turno = item.TryGetProperty("turno", out var turno) ? turno.GetString() ?? "" : "",
-                            Aula = $"{nivelStr?[0]}{gradoVal}{seccionStr}",
-                            CodigoQR = item.TryGetProperty("dni", out var dni) ? dni.GetString() ?? "" : ""
-                        });
-                    }
-                }
+                _cacheEstudiantes = lista;
+                _cacheEstudiantesFecha = DateTime.Now;
+                UltimoError = null;
+                return lista;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener estudiantes: {ex.Message}");
+                UltimoError = ex.Message;
+                Console.WriteLine($"Error al obtener estudiantes: {ex}");
+                return _cacheEstudiantes ?? new List<Estudiante>();
             }
-
-            return estudiantes;
         }
 
         public async Task<Estudiante?> ObtenerEstudiantePorId(int id)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/estudiantes");
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<List<JsonElement>>(json);
-
-                if (data != null)
-                {
-                    var estudiante = data.FirstOrDefault(e => e.TryGetProperty("id", out var idVal) && idVal.GetInt32() == id);
-                    if (estudiante.ValueKind != JsonValueKind.Undefined)
-                    {
-                        return new Estudiante
-                        {
-                            Id = estudiante.GetProperty("id").GetInt32(),
-                            Nombre = estudiante.GetProperty("nombres").GetString() ?? "",
-                            Apellido = estudiante.GetProperty("apellidos").GetString() ?? "",
-                            Nivel = estudiante.GetProperty("nivel").GetString() ?? "",
-                            Grado = estudiante.GetProperty("grado").GetInt32(),
-                            Seccion = estudiante.GetProperty("seccion").GetString() ?? "",
-                            Turno = estudiante.GetProperty("turno").GetString() ?? "",
-                            Aula = $"{estudiante.GetProperty("nivel").GetString()?[0]}{estudiante.GetProperty("grado").GetInt32()}{estudiante.GetProperty("seccion").GetString()}",
-                            CodigoQR = estudiante.GetProperty("dni").GetString() ?? ""
-                        };
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener estudiante: {ex.Message}");
-            }
-
-            return null;
+            var todos = await ObtenerTodosEstudiantes();
+            return todos.FirstOrDefault(e => e.Id == id);
         }
 
         public async Task<Estudiante?> ObtenerEstudiantePorCodigoQR(string codigoQR)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/estudiantes/{codigoQR}");
-                
-                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-                
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<JsonElement>(json);
-
-                return new Estudiante
-                {
-                    Id = data.GetProperty("id").GetInt32(),
-                    Nombre = data.GetProperty("nombres").GetString() ?? "",
-                    Apellido = data.GetProperty("apellidos").GetString() ?? "",
-                    Nivel = data.GetProperty("nivel").GetString() ?? "",
-                    Grado = data.GetProperty("grado").GetInt32(),
-                    Seccion = data.GetProperty("seccion").GetString() ?? "",
-                    Turno = data.GetProperty("turno").GetString() ?? "",
-                    Aula = $"{data.GetProperty("nivel").GetString()?[0]}{data.GetProperty("grado").GetInt32()}{data.GetProperty("seccion").GetString()}",
-                    CodigoQR = data.GetProperty("dni").GetString() ?? ""
-                };
+                var todos = await ObtenerTodosEstudiantes();
+                return todos.FirstOrDefault(e =>
+                    string.Equals(e.CodigoQR, codigoQR, StringComparison.OrdinalIgnoreCase) ||
+                    e.Id.ToString() == codigoQR);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al buscar estudiante por QR: {ex.Message}");
+                return null;
             }
-
-            return null;
         }
 
         public async Task<List<Estudiante>> BuscarEstudiantes(string? nombre = null, string? aula = null, string? seccion = null, string? grado = null, string? nivel = null, string? turno = null)
@@ -153,59 +135,87 @@ namespace MiAppAsistencia.Services
                 query = query.Where(e => e.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase) ||
                                          e.Apellido.Contains(nombre, StringComparison.OrdinalIgnoreCase));
             }
-
             if (!string.IsNullOrWhiteSpace(aula))
-            {
                 query = query.Where(e => e.Aula == aula);
-            }
-
             if (!string.IsNullOrWhiteSpace(seccion))
-            {
                 query = query.Where(e => e.Seccion == seccion);
-            }
-
             if (!string.IsNullOrWhiteSpace(grado) && int.TryParse(grado, out int gradoNum))
-            {
                 query = query.Where(e => e.Grado == gradoNum);
-            }
-
             if (!string.IsNullOrWhiteSpace(nivel))
-            {
                 query = query.Where(e => e.Nivel == nivel);
-            }
-
             if (!string.IsNullOrWhiteSpace(turno))
-            {
                 query = query.Where(e => e.Turno == turno);
-            }
 
             return query.ToList();
         }
 
-        // Métodos para Asistencia
-        public async Task RegistrarAsistencia(Asistencia asistencia)
-        {
-            _asistencias.Add(asistencia);
+        // ---------- Asistencia ----------
 
-            // También guardar en API
+        private async Task CargarAsistenciasDelDiaAsync()
+        {
+            var hoy = DateTime.Today.ToString("yyyy-MM-dd");
+            if (_fechaCargada == hoy) return;
+
+            var data = await GetJsonAsync($"{BaseUrl}/asistencias?fecha={hoy}");
+            _registradosHoy.Clear();
+            _asistencias.RemoveAll(a => a.Fecha.Date == DateTime.Today);
+
+            if (data is not null && data.Value.TryGetProperty("asistencias", out var docs))
+                foreach (var doc in docs.EnumerateArray())
+                {
+                    var id = doc.TryGetProperty("estudiante_id", out var e) && e.TryGetInt32(out var ev) ? ev : 0;
+                    if (id == 0) continue;
+                    _registradosHoy.Add(id);
+                    _asistencias.Add(new Asistencia
+                    {
+                        EstudianteId = id,
+                        Fecha = DateTime.Today,
+                        Estado = doc.TryGetProperty("estado", out var est) ? est.GetString() ?? "Presente" : "Presente"
+                    });
+                }
+            _fechaCargada = hoy;
+        }
+
+        /// <summary>True si ya existe la asistencia de hoy en el backend.</summary>
+        public async Task<bool> YaRegistradoHoyAsync(int estudianteId)
+        {
             try
             {
-                var payload = new
-                {
-                    estudiante_id = asistencia.EstudianteId,
-                    estado = asistencia.Estado,
-                    observacion = asistencia.Observaciones
-                };
+                await CargarAsistenciasDelDiaAsync();
+            }
+            catch { /* si falla la red, se intenta registrar igual */ }
+            return _registradosHoy.Contains(estudianteId);
+        }
 
-                var json = JsonSerializer.Serialize(payload);
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{_apiBaseUrl}/asistencia", content);
-                response.EnsureSuccessStatusCode();
-            }
-            catch (Exception ex)
+        /// <summary>Escribe la asistencia en el backend (MySQL). Devuelve false si ya existía hoy.</summary>
+        public async Task<bool> RegistrarAsistencia(Asistencia asistencia)
+        {
+            if (await YaRegistradoHoyAsync(asistencia.EstudianteId))
+                return false;
+
+            var body = new
             {
-                Console.WriteLine($"Error al guardar asistencia en API: {ex.Message}");
+                estudiante_id = asistencia.EstudianteId,
+                estado = string.IsNullOrWhiteSpace(asistencia.Estado) ? "Presente" : asistencia.Estado,
+                observacion = asistencia.Observaciones,
+                fecha = DateTime.Today.ToString("yyyy-MM-dd")
+            };
+
+            using var request = await CrearRequestAsync(HttpMethod.Post, $"{BaseUrl}/asistencias", body);
+            using var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var texto = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Backend POST asistencia -> {(int)response.StatusCode}: {texto[..Math.Min(300, texto.Length)]}");
+                return false;
             }
+
+            asistencia.Id = 0;
+            asistencia.Fecha = DateTime.Today;
+            _asistencias.Add(asistencia);
+            _registradosHoy.Add(asistencia.EstudianteId);
+            return true;
         }
 
         public List<Asistencia> ObtenerAsistenciasPorFecha(DateTime fecha)
@@ -220,7 +230,7 @@ namespace MiAppAsistencia.Services
 
         public bool YaRegistradoHoy(int estudianteId)
         {
-            return _asistencias.Any(a => a.EstudianteId == estudianteId && a.Fecha.Date == DateTime.Today);
+            return _registradosHoy.Contains(estudianteId);
         }
     }
 }

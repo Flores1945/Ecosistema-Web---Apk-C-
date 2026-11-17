@@ -61,6 +61,10 @@
               "target": "Package",
               "version": "[10.0.12, )",
               "autoReferenced": true
+            },
+            "ZXing.Net.Maui.Controls": {
+              "target": "Package",
+              "version": "[0.10.4, )"
             }
           },
           "imports": [

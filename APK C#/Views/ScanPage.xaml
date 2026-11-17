@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+             x:Class="MiAppAsistencia.Views.ScanPage"
+             BackgroundColor="#0B1220"
+             Title="Escanear QR">
+
+    <Grid>
+        <!-- Cámara en tiempo real -->
+        <zxing:CameraBarcodeReaderView x:Name="CameraView"
+                                       BarcodesDetected="OnBarcodeDetected"
+                                       VerticalOptions="Fill"
+                                       HorizontalOptions="Fill" />
+
+        <!-- Marco guía centrado -->
+        <Border WidthRequest="260"
+                HeightRequest="260"
+                Stroke="#38BDF8"
+                StrokeThickness="3"
+                StrokeShape="RoundRectangle 24"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24" />
+            </Border.StrokeShape>
+        </Border>
+
+        <!-- Encabezado y estado -->
+        <VerticalStackLayout Padding="20,50,20,20"
+                             Spacing="8"
+                             VerticalOptions="Start">
+            <Label Text="Escanea el código QR de la credencial"
+                   FontFamily="OpenSansSemibold"
+                   FontSize="18"
+                   TextColor="White"
+                   HorizontalTextAlignment="Center" />
+            <Label x:Name="EstadoLabel"
+                   Text="Apunta al código QR del estudiante"
+                   FontSize="13"
+                   TextColor="#BBD3EA"
+                   HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+
+        <!-- Barra inferior -->
+        <VerticalStackLayout Padding="20,0,20,30"
+                             Spacing="10"
+                             VerticalOptions="End">
+            <Button x:Name="ManualBtn"
+                    Text="Ingresar código manualmente"
+                    BackgroundColor="#1E293B"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="48"
+                    Clicked="OnManualClicked" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

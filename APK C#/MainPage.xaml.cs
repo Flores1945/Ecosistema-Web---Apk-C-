@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using MiAppAsistencia.Models;
 using MiAppAsistencia.Services;
 using MiAppAsistencia.Views;
@@ -9,6 +11,8 @@ public partial class MainPage : ContentPage
 {
     private readonly Usuario _usuario;
     private readonly DataService _dataService;
+    private List<EstudianteViewModel> _resultados = [];
+    private CancellationTokenSource? _debounceBusqueda;
 
     public MainPage(Usuario usuario)
     {
@@ -16,206 +20,386 @@ public partial class MainPage : ContentPage
         _usuario = usuario;
         _dataService = new DataService();
 
-        UsuarioLabel.Text = $"Bienvenido, {_usuario.Nombre} ({_usuario.Rol})";
+        UsuarioNombreLabel.Text = _usuario.Nombre;
+        UsuarioRolLabel.Text = _usuario.Rol;
+        FechaLabel.Text = FechaDeHoy();
 
-        // Configurar eventos automáticos
-        NivelPicker.SelectedIndexChanged += OnNivelChanged;
-        GradoPicker.SelectedIndexChanged += OnGradoChanged;
+        // Búsqueda simple
+        NivelPickerS.SelectedIndexChanged += (s, e) => OnNivelChanged(NivelPickerS, GradoPickerS);
+        GradoPickerS.SelectedIndexChanged += (s, e) => ActualizarTurnoInfo(NivelPickerS, GradoPickerS);
+        // Búsqueda avanzada
+        NivelPickerA.SelectedIndexChanged += (s, e) => OnNivelChanged(NivelPickerA, GradoPickerA);
+        GradoPickerA.SelectedIndexChanged += (s, e) =>
+        {
+            ActualizarTurnoInfo(NivelPickerA, GradoPickerA);
+            _ = EjecutarBusquedaAvanzadaAsync();
+        };
+        SeccionPickerA.SelectedIndexChanged += (s, e) => _ = EjecutarBusquedaAvanzadaAsync();
 
-        CargarTodosEstudiantes();
+        // Estado inicial: se cargan todos los estudiantes como muestra;
+        // el usuario puede filtrar para acotar la lista.
+        _resultados = [];
+        EstudiantesCollectionView.ItemsSource = _resultados;
+        ResumenLabel.Text = "Cargando estudiantes...";
+        ConteoLabel.Text = "0";
+        ActualizarIndicadores();
+
+        _ = CargarEstudiantesInicialAsync();
     }
 
-    private void OnNivelChanged(object? sender, EventArgs e)
+    private async Task CargarEstudiantesInicialAsync()
     {
-        var nivel = NivelPicker.SelectedItem?.ToString();
-        
-        // Limpiar y configurar grados según nivel
-        GradoPicker.SelectedItem = null;
-        
-        if (nivel == "Primaria")
-        {
-            // Primaria: grados 1-6
-            GradoPicker.Items.Clear();
-            GradoPicker.Items.Add("");
-            for (int i = 1; i <= 6; i++)
-            {
-                GradoPicker.Items.Add(i.ToString());
-            }
-        }
-        else if (nivel == "Secundaria")
-        {
-            // Secundaria: grados 1-5
-            GradoPicker.Items.Clear();
-            GradoPicker.Items.Add("");
-            for (int i = 1; i <= 5; i++)
-            {
-                GradoPicker.Items.Add(i.ToString());
-            }
-        }
-        else
-        {
-            // Resetear
-            GradoPicker.Items.Clear();
-            GradoPicker.Items.Add("");
-            GradoPicker.Items.Add("1");
-            GradoPicker.Items.Add("2");
-            GradoPicker.Items.Add("3");
-            GradoPicker.Items.Add("4");
-            GradoPicker.Items.Add("5");
-            GradoPicker.Items.Add("6");
-        }
-        
-        TurnoPicker.SelectedItem = null;
-    }
+        LoadingIndicator.IsVisible = true;
+        LoadingIndicator.IsRunning = true;
 
-    private void OnGradoChanged(object? sender, EventArgs e)
-    {
-        var nivel = NivelPicker.SelectedItem?.ToString();
-        var gradoStr = GradoPicker.SelectedItem?.ToString();
-        
-        if (string.IsNullOrEmpty(nivel) || string.IsNullOrEmpty(gradoStr))
-        {
-            TurnoPicker.SelectedItem = null;
-            return;
-        }
-        
-        if (!int.TryParse(gradoStr, out int grado))
-        {
-            TurnoPicker.SelectedItem = null;
-            return;
-        }
-        
-        // Lógica automática de turno (igual que en la web)
-        // Primaria 1,2,3 + Secundaria 4,5 = Mañana
-        // Primaria 4,5,6 + Secundaria 1,2,3 = Tarde
-        string turno;
-        
-        if (nivel == "Primaria")
-        {
-            turno = grado <= 3 ? "Mañana" : "Tarde";
-        }
-        else // Secundaria
-        {
-            turno = grado >= 4 ? "Mañana" : "Tarde";
-        }
-        
-        TurnoPicker.SelectedItem = turno;
-    }
-
-    private async void CargarTodosEstudiantes()
-    {
         try
         {
             var estudiantes = await _dataService.ObtenerTodosEstudiantes();
-            EstudiantesCollectionView.ItemsSource = estudiantes.Select(e => new EstudianteViewModel(e)).ToList();
-            
-            // Mostrar total de estudiantes
-            UsuarioLabel.Text = $"Bienvenido, {_usuario.Nombre} ({_usuario.Rol}) - Total estudiantes: {estudiantes.Count}";
+
+            if (estudiantes.Count == 0)
+            {
+                var detalle = string.IsNullOrEmpty(_dataService.UltimoError)
+                    ? "sin conexión a internet"
+                    : _dataService.UltimoError;
+                await AplicarResultadosAsync([], $"No se pudieron cargar los estudiantes ({detalle})");
+                await DisplayAlertAsync("Error de conexión", $"No se pudieron cargar los estudiantes.\n\n{detalle}", "OK");
+                return;
+            }
+
+            await AplicarResultadosAsync(estudiantes, $"{estudiantes.Count} estudiantes — filtra para acotar la lista");
         }
-        catch (Exception ex)
+        finally
         {
-            await DisplayAlert("Error", $"No se pudieron cargar los estudiantes: {ex.Message}\nAsegúrate que el backend esté encendido en 192.168.100.8:3000", "OK");
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
         }
     }
 
+    private static string FechaDeHoy()
+    {
+        var hoy = DateTime.Today.ToString("dddd, d 'de' MMMM 'de' yyyy", new CultureInfo("es-PE"));
+        return char.ToUpperInvariant(hoy[0]) + hoy[1..];
+    }
+
+    // ---------- Selector de modo ----------
+
+    private void OnModoSimple(object? sender, EventArgs e) => CambiarModo(avanzada: false);
+    private void OnModoAvanzada(object? sender, EventArgs e) => CambiarModo(avanzada: true);
+
+    private void CambiarModo(bool avanzada)
+    {
+        PanelSimple.IsVisible = !avanzada;
+        PanelAvanzada.IsVisible = avanzada;
+        BtnModoSimple.Style = avanzada
+            ? (Style)Resources["OutlineButton"]
+            : (Style)Resources["BaseButton"];
+        BtnModoAvanzada.Style = avanzada
+            ? (Style)Resources["BaseButton"]
+            : (Style)Resources["OutlineButton"];
+    }
+
+    // ---------- Filtros ----------
+
+    private void OnNivelChanged(Picker nivelPicker, Picker gradoPicker)
+    {
+        var nivel = nivelPicker.SelectedItem?.ToString();
+
+        gradoPicker.SelectedItem = null;
+        gradoPicker.Items.Clear();
+
+        // Primaria llega a 6.°; Secundaria a 5.°
+        var ultimoGrado = nivel == "Secundaria" ? 5 : 6;
+
+        for (var grado = 1; grado <= ultimoGrado; grado++)
+            gradoPicker.Items.Add(grado.ToString(CultureInfo.InvariantCulture));
+
+        ActualizarTurnoInfo(nivelPicker, gradoPicker);
+        if (PanelAvanzada.IsVisible)
+            _ = EjecutarBusquedaAvanzadaAsync();
+    }
+
+    private void ActualizarTurnoInfo(Picker nivelPicker, Picker gradoPicker)
+    {
+        var nivel = nivelPicker.SelectedItem?.ToString();
+        var gradoTexto = gradoPicker.SelectedItem?.ToString();
+
+        if (string.IsNullOrEmpty(nivel) || !int.TryParse(gradoTexto, out var grado))
+        {
+            TurnoInfoLabel.Text = "";
+            return;
+        }
+
+        // Regla institucional (igual que el sitio web): primaria 1-3 y secundaria 4-5 en la mañana.
+        var turno = nivel == "Primaria"
+            ? grado <= 3 ? "Mañana" : "Tarde"
+            : grado >= 4 ? "Mañana" : "Tarde";
+
+        TurnoInfoLabel.Text = $"Turno estimado para {grado}° de {nivel}: {turno}";
+    }
+
+    // ---------- Búsqueda simple ----------
+
     private async void OnBuscarClicked(object? sender, EventArgs e)
     {
-        var nombre = NombreEntry.Text?.Trim();
-        var nivel = NivelPicker.SelectedItem?.ToString();
-        var turno = TurnoPicker.SelectedItem?.ToString();
-        var grado = GradoPicker.SelectedItem?.ToString();
-        var seccion = SeccionPicker.SelectedItem?.ToString();
+        var nivel = NivelPickerS.SelectedItem?.ToString();
+        var grado = GradoPickerS.SelectedItem?.ToString();
+        var seccion = SeccionPickerS.SelectedItem?.ToString();
 
-        var estudiantes = await _dataService.BuscarEstudiantes(nombre, null, seccion, grado, nivel, turno);
-        EstudiantesCollectionView.ItemsSource = estudiantes.Select(e => new EstudianteViewModel(e)).ToList();
+        if (string.IsNullOrEmpty(nivel) && string.IsNullOrEmpty(grado) && string.IsNullOrEmpty(seccion))
+        {
+            await DisplayAlertAsync("Filtros", "Selecciona al menos nivel, grado o sección para buscar.", "OK");
+            return;
+        }
+
+        await EjecutarBusquedaAsync(null, seccion, grado, nivel, "Búsqueda simple");
+    }
+
+    // ---------- Búsqueda avanzada (en vivo) ----------
+
+    private void OnNombreAvanzadoChanged(object? sender, TextChangedEventArgs e)
+    {
+        _debounceBusqueda?.Cancel();
+        _debounceBusqueda = new CancellationTokenSource();
+        var token = _debounceBusqueda.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(450, token);
+                if (!token.IsCancellationRequested)
+                    await MainThread.InvokeOnMainThreadAsync(EjecutarBusquedaAvanzadaAsync);
+            }
+            catch (TaskCanceledException) { }
+        });
+    }
+
+    private async Task EjecutarBusquedaAvanzadaAsync()
+    {
+        var nombre = NombreAvanzadoEntry.Text?.Trim();
+        var nivel = NivelPickerA.SelectedItem?.ToString();
+        var grado = GradoPickerA.SelectedItem?.ToString();
+        var seccion = SeccionPickerA.SelectedItem?.ToString();
+
+        // Sin nombre ni filtros no se busca (evita listar todo).
+        if (string.IsNullOrWhiteSpace(nombre) &&
+            string.IsNullOrEmpty(nivel) &&
+            string.IsNullOrEmpty(grado) &&
+            string.IsNullOrEmpty(seccion))
+        {
+            await AplicarResultadosAsync([], "Escribe un nombre o usa los filtros");
+            return;
+        }
+
+        await EjecutarBusquedaAsync(nombre, seccion, grado, nivel, "Búsqueda avanzada");
+    }
+
+    private async Task EjecutarBusquedaAsync(string? nombre, string? seccion, string? grado, string? nivel, string modo)
+    {
+        LoadingIndicator.IsVisible = true;
+        LoadingIndicator.IsRunning = true;
+
+        try
+        {
+            var estudiantes = await _dataService.BuscarEstudiantes(nombre, null, seccion, grado, nivel, null);
+            var resumen = ResumenDeBusqueda(nombre, nivel, grado, seccion, modo);
+            await AplicarResultadosAsync(estudiantes, resumen);
+        }
+        finally
+        {
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
+        }
+    }
+
+    private static string ResumenDeBusqueda(string? nombre, string? nivel, string? grado, string? seccion, string modo)
+    {
+        var filtros = new List<string> { modo };
+
+        if (!string.IsNullOrWhiteSpace(nombre)) filtros.Add($"“{nombre}”");
+        if (!string.IsNullOrWhiteSpace(nivel)) filtros.Add(nivel);
+        if (!string.IsNullOrWhiteSpace(grado)) filtros.Add($"{grado}°");
+        if (!string.IsNullOrWhiteSpace(seccion)) filtros.Add(seccion);
+
+        return string.Join(" · ", filtros);
+    }
+
+    private async void OnLimpiarClicked(object? sender, EventArgs e)
+    {
+        // Limpiar ambos paneles
+        NivelPickerS.SelectedItem = null;
+        GradoPickerS.SelectedItem = null;
+        SeccionPickerS.SelectedItem = null;
+        NombreAvanzadoEntry.Text = null;
+        NivelPickerA.SelectedItem = null;
+        GradoPickerA.SelectedItem = null;
+        SeccionPickerA.SelectedItem = null;
+        TurnoInfoLabel.Text = "";
+
+        await AplicarResultadosAsync([], "Elige un modo de búsqueda");
+    }
+
+    private Task AplicarResultadosAsync(List<Estudiante> estudiantes, string resumen)
+    {
+        _resultados = estudiantes
+            .Select(e => new EstudianteViewModel(e, _dataService.YaRegistradoHoy(e.Id)))
+            .ToList();
+
+        EstudiantesCollectionView.ItemsSource = _resultados;
+        ResumenLabel.Text = resumen;
+        ConteoLabel.Text = _resultados.Count.ToString(CultureInfo.InvariantCulture);
+        ActualizarIndicadores();
+
+        return Task.CompletedTask;
+    }
+
+    private void ActualizarIndicadores()
+    {
+        var presentes = _resultados.Count(r => r.YaRegistrado);
+
+        TotalLabel.Text = _resultados.Count.ToString(CultureInfo.InvariantCulture);
+        RegistradosLabel.Text = presentes.ToString(CultureInfo.InvariantCulture);
+        PendientesLabel.Text = (_resultados.Count - presentes).ToString(CultureInfo.InvariantCulture);
     }
 
     private async void OnEscanerarQRClicked(object? sender, EventArgs e)
     {
         try
         {
-            var cameraBarcodeReaderPage = new CameraBarcodeReaderPage();
-            cameraBarcodeReaderPage.OnDetected += async (result) =>
-            {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
-                {
-                    await Navigation.PopAsync();
-                    await ProcesarCodigoQR(result);
-                });
-            };
-
-            await Navigation.PushAsync(cameraBarcodeReaderPage);
+            var paginaLector = new ScanPage();
+            await Navigation.PushAsync(paginaLector);
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"No se pudo acceder a la cámara: {ex.Message}", "OK");
-        }
-    }
-
-    private async Task ProcesarCodigoQR(string codigoQR)
-    {
-        var estudiante = await _dataService.ObtenerEstudiantePorCodigoQR(codigoQR);
-
-        if (estudiante != null)
-        {
-            await RegistrarAsistencia(estudiante);
-        }
-        else
-        {
-            await DisplayAlert("No encontrado", $"No se encontró ningún estudiante con el código QR: {codigoQR}", "OK");
+            await DisplayAlertAsync("Error", $"No se pudo acceder a la cámara: {ex.Message}", "OK");
         }
     }
 
     private void OnRegistrarAsistenciaClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is EstudianteViewModel viewModel)
-        {
-            _ = RegistrarAsistencia(viewModel.Estudiante);
-        }
+        if (sender is not BindableObject binding || binding.BindingContext is not EstudianteViewModel viewModel)
+            return;
+
+        _ = RegistrarAsistenciaAsync(viewModel.Estudiante);
     }
 
-    private async Task RegistrarAsistencia(Estudiante estudiante)
+    private async Task RegistrarAsistenciaAsync(Estudiante estudiante)
     {
-        if (_dataService.YaRegistradoHoy(estudiante.Id))
+        var fila = _resultados.FirstOrDefault(r => r.Estudiante.Id == estudiante.Id);
+
+        if (await _dataService.YaRegistradoHoyAsync(estudiante.Id))
         {
-            await DisplayAlert("Atención", $"{estudiante.Nombre} {estudiante.Apellido} ya tiene asistencia registrada hoy.", "OK");
+            if (fila is not null)
+                fila.YaRegistrado = true;
+
+            await DisplayAlertAsync("Ya registrado", $"{estudiante.Nombre} {estudiante.Apellido} tiene asistencia de hoy.", "OK");
             return;
         }
 
-        var asistencia = new Asistencia
+        var guardado = await _dataService.RegistrarAsistencia(new Asistencia
         {
             EstudianteId = estudiante.Id,
             Fecha = DateTime.Now,
             Estado = "Presente",
             MetodoRegistro = "Manual",
             Observaciones = "Registrado desde app móvil"
-        };
+        });
 
-        _dataService.RegistrarAsistencia(asistencia);
+        if (!guardado)
+        {
+            if (fila is not null)
+                fila.YaRegistrado = true;
 
-        await DisplayAlert("Éxito", $"Asistencia registrada para {estudiante.Nombre} {estudiante.Apellido}", "OK");
+            await DisplayAlertAsync("Ya registrado", $"{estudiante.Nombre} {estudiante.Apellido} tiene asistencia de hoy.", "OK");
+            return;
+        }
+
+        if (fila is not null)
+            fila.YaRegistrado = true;
+
+        ActualizarIndicadores();
+
+        await DisplayAlertAsync(
+            "Asistencia registrada",
+            $"{estudiante.Nombre} {estudiante.Apellido}\n{DateTime.Now:HH:mm}",
+            "OK");
     }
 
     private async void OnSalirClicked(object? sender, EventArgs e)
     {
-        bool confirmar = await DisplayAlert("Cerrar Sesión", "¿Estás seguro de que deseas cerrar sesión?", "Sí", "No");
+        var confirmar = await DisplayAlertAsync("Cerrar sesión", "¿Deseas cerrar la sesión actual?", "Sí, salir", "Cancelar");
 
         if (confirmar)
         {
+            SesionFirebase.Limpiar();
             await Navigation.PopToRootAsync();
         }
     }
 }
 
-public class EstudianteViewModel
+public class EstudianteViewModel(Estudiante estudiante, bool yaRegistrado) : INotifyPropertyChanged
 {
-    public Estudiante Estudiante { get; }
-    public string NombreCompleto => $"{Estudiante.Nombre} {Estudiante.Apellido}";
-    public string InfoClase => $"{Estudiante.Nivel} - {Estudiante.Grado}° {Estudiante.Seccion} ({Estudiante.Turno})";
-    public string CodigoQR => Estudiante.CodigoQR;
+    private bool _yaRegistrado = yaRegistrado;
 
-    public EstudianteViewModel(Estudiante estudiante)
+    public Estudiante Estudiante { get; } = estudiante;
+
+    public string NombreCompleto => $"{Estudiante.Nombre} {Estudiante.Apellido}";
+
+    public string InfoClase
     {
-        Estudiante = estudiante;
+        get
+        {
+            var partes = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(Estudiante.Nivel))
+                partes.Add(Estudiante.Nivel);
+
+            if (Estudiante.Grado > 0)
+                partes.Add($"{Estudiante.Grado}° {Estudiante.Seccion}".TrimEnd());
+
+            if (!string.IsNullOrWhiteSpace(Estudiante.Turno))
+                partes.Add(Estudiante.Turno);
+
+            return partes.Count == 0 ? "Sin datos de clase" : string.Join(" · ", partes);
+        }
     }
+
+    public string CodigoLabel => string.IsNullOrWhiteSpace(Estudiante.CodigoQR)
+        ? "Sin DNI"
+        : $"DNI {Estudiante.CodigoQR}";
+
+    public string Iniciales => InitialsOf($"{Estudiante.Nombre} {Estudiante.Apellido}");
+
+    public bool YaRegistrado
+    {
+        get => _yaRegistrado;
+        set
+        {
+            if (_yaRegistrado == value)
+                return;
+
+            _yaRegistrado = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(RegistrarHabilitado));
+        }
+    }
+
+    public bool RegistrarHabilitado => !_yaRegistrado;
+
+    private static string InitialsOf(string nombreCompleto)
+    {
+        var partes = nombreCompleto.Split([' ', '-'], StringSplitOptions.RemoveEmptyEntries);
+
+        return partes.Length switch
+        {
+            0 => "?",
+            1 => partes[0][..1].ToUpperInvariant(),
+            _ => $"{char.ToUpperInvariant(partes[0][0])}{char.ToUpperInvariant(partes[^1][0])}"
+        };
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

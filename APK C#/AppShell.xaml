@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MiAppAsistencia"
     xmlns:views="clr-namespace:MiAppAsistencia.Views"
-    Title="MiAppAsistencia">
+    Title="Asistencia Liceo Trujillo">
 
     <ShellContent
-        Title="Login"
+        Title="Iniciar sesión"
         ContentTemplate="{DataTemplate views:LoginPage}"
         Route="LoginPage" />
 

@@ -1,26 +1,30 @@
-namespace MiAppAsistencia.Views
+namespace MiAppAsistencia.Views;
+
+public partial class CameraBarcodeReaderPage : ContentPage
 {
-    public partial class CameraBarcodeReaderPage : ContentPage
+    public event Action<string>? OnDetected;
+
+    public CameraBarcodeReaderPage()
     {
-        public event Action<string>? OnDetected;
+        InitializeComponent();
+    }
 
-        public CameraBarcodeReaderPage()
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        CodigoQREntry.Focus();
+    }
+
+    private async void OnValidarClicked(object? sender, EventArgs e)
+    {
+        var codigoQR = CodigoQREntry.Text?.Trim();
+
+        if (string.IsNullOrWhiteSpace(codigoQR))
         {
-            InitializeComponent();
+            await this.DisplayAlertAsync("Código requerido", "Escribe el DNI de la credencial del estudiante.", "OK");
+            return;
         }
 
-        private async void OnValidarClicked(object? sender, EventArgs e)
-        {
-            var codigoQR = CodigoQREntry.Text?.Trim();
-
-            if (!string.IsNullOrWhiteSpace(codigoQR))
-            {
-                OnDetected?.Invoke(codigoQR);
-            }
-            else
-            {
-                await DisplayAlert("Error", "Por favor, ingrese un código QR válido.", "OK");
-            }
-        }
+        OnDetected?.Invoke(codigoQR);
     }
 }

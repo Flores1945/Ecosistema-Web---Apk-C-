@@ -1,52 +1,116 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:camera="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls"
              x:Class="MiAppAsistencia.Views.CameraBarcodeReaderPage"
+             BackgroundColor="{StaticResource PageBackground}"
              Title="Escanear QR">
-    <Grid RowDefinitions="*,Auto">
-        <VerticalStackLayout Grid.Row="0"
-                             Padding="20"
-                             Spacing="20"
-                             VerticalOptions="Center">
-            <Label Text="📷"
-                   FontSize="80"
-                   HorizontalTextAlignment="Center" />
 
-            <Label Text="Escanear Código QR"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource PrimaryDark}"
-                   HorizontalTextAlignment="Center" />
+    <ScrollView Padding="16,18">
+        <VerticalStackLayout Spacing="16">
 
-            <Label Text="Ingrese el código QR manualmente:"
-                   FontSize="14"
-                   TextColor="{StaticResource Gray600}"
-                   HorizontalTextAlignment="Center" />
+            <!-- Zona de lectura -->
+            <Border Background="{StaticResource BrandGradient}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="20,30">
+                <Border.Shadow>
+                    <Shadow Radius="22" Offset="0,8" Opacity="0.14" Brush="{StaticResource Brand900}" />
+                </Border.Shadow>
 
-            <Entry x:Name="CodigoQREntry"
-                   Placeholder="Código QR (ej: EST-001)"
-                   TextColor="{StaticResource OffBlack}"
-                   PlaceholderColor="{StaticResource Gray500}"
-                   HorizontalTextAlignment="Center" />
+                <VerticalStackLayout Spacing="10">
+                    <Border WidthRequest="76"
+                            HeightRequest="76"
+                            StrokeShape="RoundRectangle 20"
+                            BackgroundColor="#1AFFFFFF"
+                            Stroke="#40FFFFFF"
+                            StrokeThickness="1"
+                            Padding="18"
+                            HorizontalOptions="Center">
+                        <Image Source="ic_qr_scan_white.svg" Aspect="AspectFit" />
+                    </Border>
 
-            <Button x:Name="ValidarBtn"
-                    Text="Validar Código"
-                    BackgroundColor="{StaticResource Primary}"
-                    TextColor="{StaticResource White}"
-                    FontAttributes="Bold"
-                    CornerRadius="10"
-                    Clicked="OnValidarClicked" />
+                    <Label Text="Lectura de código QR"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="20"
+                           TextColor="{StaticResource TextOnBrand}"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Valida la asistencia del estudiante con su código institucional."
+                           Style="{StaticResource CaptionText}"
+                           TextColor="#CCE0F2FE"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Ingreso manual -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Código del estudiante" Style="{StaticResource SectionTitle}" />
+
+                    <Label Text="Ingresa el DNI impreso en la credencial del estudiante."
+                           Style="{StaticResource CaptionText}" />
+
+                    <Border Style="{StaticResource InputField}">
+                        <Entry x:Name="CodigoQREntry"
+                               Placeholder="Ej. 70012345"
+                               Keyboard="Numeric"
+                               ReturnType="Go"
+                               Completed="OnValidarClicked" />
+                    </Border>
+
+                    <Button x:Name="ValidarBtn"
+                            Text="Validar y registrar"
+                            Style="{StaticResource BaseButton}"
+                            HeightRequest="52"
+                            Clicked="OnValidarClicked" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Pasos -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Cómo registrar" Style="{StaticResource SectionTitle}" />
+
+                    <Grid RowDefinitions="Auto,Auto,Auto"
+                          ColumnDefinitions="Auto,*"
+                          RowSpacing="10"
+                          ColumnSpacing="10">
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource StepBadge}">
+                            <Label Text="1" Style="{StaticResource StepBadgeLabel}" />
+                        </Border>
+                        <Label Grid.Row="0" Grid.Column="1"
+                               Text="Busca la credencial del estudiante."
+                               Style="{StaticResource BodyText}"
+                               VerticalOptions="Center" />
+
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource StepBadge}">
+                            <Label Text="2" Style="{StaticResource StepBadgeLabel}" />
+                        </Border>
+                        <Label Grid.Row="1" Grid.Column="1"
+                               Text="Escribe el código en el campo superior."
+                               Style="{StaticResource BodyText}"
+                               VerticalOptions="Center" />
+
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource StepBadge}">
+                            <Label Text="3" Style="{StaticResource StepBadgeLabel}" />
+                        </Border>
+                        <Label Grid.Row="2" Grid.Column="1"
+                               Text="Confirma que la asistencia quedó registrada."
+                               Style="{StaticResource BodyText}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Aviso -->
+            <Border BackgroundColor="{StaticResource WarningLight}"
+                    Stroke="{StaticResource Warning}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14,12">
+                <Label Text="La lectura con cámara se habilita al instalar el complemento de escaneo; por ahora el ingreso es manual."
+                       Style="{StaticResource CaptionText}"
+                       TextColor="{StaticResource WarningDark}" />
+            </Border>
         </VerticalStackLayout>
-
-        <Border Grid.Row="1"
-               BackgroundColor="{StaticResource PrimaryDark}"
-               Padding="20"
-               StrokeShape="Rectangle">
-            <Label Text="Nota: La funcionalidad de cámara requiere instalación de librerías adicionales"
-                   TextColor="{StaticResource White}"
-                   FontSize="12"
-                   HorizontalTextAlignment="Center" />
-        </Border>
-    </Grid>
+    </ScrollView>
 </ContentPage>
