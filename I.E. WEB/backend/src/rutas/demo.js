@@ -1,7 +1,6 @@
 const express = require("express");
 const { query } = require("../db");
 const { puede } = require("../permisos");
-const { firestore } = require("../firebase");
 const { normalizarTelefonoPe } = require("../helpers");
 
 const router = express.Router();
@@ -83,7 +82,6 @@ router.post("/alumnos", async (req, res) => {
         const rowsDni = await query("SELECT dni FROM estudiantes WHERE dni IS NOT NULL");
         const dnis = new Set(rowsDni.map((r) => String(r.dni)));
 
-        const syncFirestore = [];
         let creados = 0;
 
         for (const aula of AULAS_DEMO) {
@@ -114,50 +112,10 @@ router.post("/alumnos", async (req, res) => {
                     "INSERT INTO estudiante_padre (estudiante_id, padre_id, parentesco) VALUES (?, ?, ?)",
                     [est.insertId, padre.insertId, elegir(PARENTESCOS)]
                 );
-
-                syncFirestore.push({
-                    id: est.insertId,
-                    nombre: `${nombres} ${apellidos}`,
-                    nombres,
-                    apellidos,
-                    sexo,
-                    codigo: String(est.insertId),
-                    dni,
-                    nivel: aula.nivel,
-                    grado: gradoNum,
-                    seccion: seccionReal,
-                    turno: turnoDe(aula.nivel, aula.grado),
-                    telefono_apoderado: normalizarTelefonoPe(telefonoPadre),
-                    nombre_apoderado: nombrePadre
-                });
                 creados++;
             }
         }
 
-        // Espejo en Firestore por lotes (máx. 500 ops por batch)
-        for (let i = 0; i < syncFirestore.length; i += 400) {
-            const batch = firestore.batch();
-            for (const e of syncFirestore.slice(i, i + 400)) {
-                const ref = firestore.collection("estudiantes").doc(String(e.id));
-                batch.set(ref, {
-                    nombre: e.nombre,
-                    nombres: e.nombres,
-                    apellidos: e.apellidos,
-                    sexo: e.sexo,
-                    codigo: e.codigo,
-                    dni: e.dni,
-                    nivel: e.nivel,
-                    grado: e.grado,
-                    seccion: e.seccion,
-                    turno: e.turno,
-                    telefono_apoderado: e.telefono_apoderado,
-                    nombre_apoderado: e.nombre_apoderado,
-                    asistenciaTomada: false,
-                    fechaAsistencia: null
-                });
-            }
-            await batch.commit();
-        }
 
         res.json({ creados, mensaje: `${creados} alumnos demo creados en ${AULAS_DEMO.length} aulas.` });
     } catch (error) {
@@ -197,14 +155,6 @@ router.delete("/alumnos", async (req, res) => {
             );
         }
 
-        // Firestore
-        for (let i = 0; i < ids.length; i += 400) {
-            const batch = firestore.batch();
-            for (const id of ids.slice(i, i + 400)) {
-                batch.delete(firestore.collection("estudiantes").doc(String(id)));
-            }
-            await batch.commit();
-        }
 
         res.json({ eliminados: ids.length, mensaje: `${ids.length} alumnos demo eliminados.` });
     } catch (error) {

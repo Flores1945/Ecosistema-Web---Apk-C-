@@ -1,5 +1,4 @@
-import { get, ref } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
-import { db } from "./firebase-config.js";
+import { apiGet } from "./api.js";
 
 // Búsqueda global
 export function inicializarBusquedaGlobal() {
@@ -42,17 +41,14 @@ export function inicializarBusquedaGlobal() {
 
 async function realizarBusquedaGlobal(termino) {
     const resultados = [];
-    const paginas = ['alumnos', 'asistencias', 'pagos', 'notas', 'tareas'];
+    const recursos = ['estudiantes', 'asistencias', 'pagos', 'notas', 'tareas'];
 
-    for (const pagina of paginas) {
+    for (const recurso of recursos) {
         try {
-            const snapshot = await get(ref(db, pagina));
-            if (snapshot.exists()) {
-                const datos = snapshot.val();
-                buscarEnObjeto(datos, termino, pagina, resultados);
-            }
+            const datos = await apiGet('/' + recurso);
+            buscarEnObjeto(datos, termino, recurso, resultados);
         } catch (error) {
-            console.error(`Error buscando en ${pagina}:`, error);
+            console.error('Error buscando en ' + recurso + ':', error);
         }
     }
 

@@ -1,51 +1,10 @@
 const express = require("express");
 const { query } = require("../db");
-const { auth, firestore } = require("../firebase");
 const { normalizarEstadoAsistencia, notificarN8nAsistencia } = require("../notificar-n8n");
 
 const router = express.Router();
 
-// La APK se autentica con Firebase Auth (idToken de Google), no con el JWT
-// del sitio web. Verificamos el token contra Firebase Admin.
-async function autenticarFirebase(req, res, next) {
-    const header = req.headers.authorization || "";
-    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-
-    // Si viene token de Firebase se verifica; si no, se permite igual
-    // (la APK solo se usa dentro de la red local del colegio).
-    if (token) {
-        try {
-            req.firebaseUser = await auth.verifyIdToken(token);
-        } catch {
-            req.firebaseUser = null;
-        }
-    }
-    next();
-}
-
-router.use(autenticarFirebase);
-
-// Espejo en Firestore: la APK también puede leer Firestore; dejar el doc
-// consistente evita que el puente Firestore->MySQL lo duplique.
-async function espejoAsistenciaFirestore(estudianteId, estado, observacion, fecha) {
-    try {
-        const f = fecha ? new Date(fecha + "T12:00:00") : new Date();
-        const yyyymmdd = f.toISOString().slice(0, 10).replace(/-/g, "");
-        await firestore.collection("asistencias").doc(`${estudianteId}_${yyyymmdd}`).set({
-            estudiante_id: Number(estudianteId),
-            estado: estado || "Presente",
-            observacion: observacion || "",
-            metodo_registro: "APK",
-            procesado: true,
-            origen: "backend-apk",
-            created_at: new Date()
-        }, { merge: true });
-    } catch (error) {
-        console.warn("No se pudo espejar asistencia a Firestore:", error.message);
-    }
-}
-
-// Lista de estudiantes activos para la APK (pausada: la APK filtra localmente).
+// Lista de estudiantes activos para la APK (la app filtra localmente).
 router.get("/estudiantes", async (_req, res) => {
     try {
         const estudiantes = await query(
@@ -61,7 +20,7 @@ router.get("/estudiantes", async (_req, res) => {
     }
 });
 
-// Asistencias de una fecha (la APK arma el set de "ya registrados hoy").
+// Asistencias de una fecha (la app arma el set de "ya registrados hoy").
 router.get("/asistencias", async (req, res) => {
     try {
         const fecha = /^\d{4}-\d{2}-\d{2}$/.test(String(req.query.fecha || ""))
@@ -78,7 +37,7 @@ router.get("/asistencias", async (req, res) => {
     }
 });
 
-// Registro de asistencia desde la APK: upsert en MySQL + n8n + espejo Firestore.
+// Registro de asistencia desde la app móvil: upsert en PostgreSQL + aviso a n8n.
 router.post("/asistencias", async (req, res) => {
     try {
         const { estudiante_id, estado, observacion, fecha } = req.body || {};
@@ -87,9 +46,7 @@ router.post("/asistencias", async (req, res) => {
 
         const estadoFinal = normalizarEstadoAsistencia(estado || "Presente");
         const fechaFinal = /^\d{4}-\d{2}-\d{2}$/.test(String(fecha || "")) ? fecha : null;
-        const observacionFinal = observacion
-            ? `${observacion} [APK: ${req.firebaseUser?.email || "usuario"}]`
-            : `[APK: ${req.firebaseUser?.email || "usuario"}]`;
+        const observacionFinal = observacion ? `${observacion} [App]` : "[App]";
 
         const existe = await query(
             fechaFinal
@@ -107,19 +64,17 @@ router.post("/asistencias", async (req, res) => {
             );
         } else {
             const r = await query(
-                "INSERT INTO asistencias (estudiante_id, fecha, estado, observacion, metodo_registro) VALUES (?, ?, ?, ?, 'APK')",
+                "INSERT INTO asistencias (estudiante_id, fecha, estado, observacion, metodo_registro) VALUES (?, ?, ?, ?, 'App')",
                 [estudianteId, fechaFinal || new Date().toISOString().slice(0, 10), estadoFinal, observacionFinal]
             );
             registroId = r.insertId;
         }
 
         notificarN8nAsistencia(estudianteId, estadoFinal).catch(() => {});
-        const fechaDoc = fechaFinal || new Date().toISOString().slice(0, 10);
-        espejoAsistenciaFirestore(estudianteId, estadoFinal, observacion, fechaDoc).catch(() => {});
 
         res.json({ ok: true, id: registroId });
     } catch (error) {
-        console.error("Error registrando asistencia desde APK:", error);
+        console.error("Error registrando asistencia desde la app:", error);
         res.status(500).json({ error: "No se pudo registrar la asistencia." });
     }
 });

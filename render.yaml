@@ -18,8 +18,6 @@ services:
         sync: false
       - key: N8N_API_KEY
         sync: false
-      - key: FIREBASE_SERVICE_ACCOUNT
-        sync: false
     # Render inyecta PORT automáticamente; el código usa process.env.PORT || 3000
     healthCheckPath: /api/health
     autoDeploy: true

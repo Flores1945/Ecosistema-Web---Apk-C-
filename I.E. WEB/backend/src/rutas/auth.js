@@ -5,7 +5,6 @@ const { query } = require("../db");
 const config = require("../config");
 const { autenticar, exigirDirectiva, nombresCompletos } = require("../middleware/auth");
 const { splitNombreCompleto, registrarAuditoria } = require("../helpers");
-const { auth: firebaseAuth } = require("../firebase");
 
 const router = express.Router();
 const CARGOS = ["Director", "Subdirector", "Docente", "Sub Docente", "Alumno", "Padre", "Apafa"];
@@ -162,17 +161,6 @@ router.post("/register", autenticar, exigirDirectiva, async (req, res) => {
             activo: 1
         };
 
-        // Espejo en Firebase Authentication (no debe tumbar el registro si falla)
-        try {
-            await firebaseAuth.createUser({
-                uid: String(result.insertId),
-                email,
-                password,
-                displayName: `${nombres} ${apellidos}`.trim()
-            });
-        } catch (error) {
-            console.error("Error al crear usuario en Firebase Auth:", error.message);
-        }
 
         await registrarAuditoria(query, req, {
             accion: "CREAR",

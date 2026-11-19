@@ -4,7 +4,6 @@ const resources = require("../resources");
 const { pick, normalizarDatos, registrarAuditoria, normalizarTelefonoPe } = require("../helpers");
 const { puede } = require("../permisos");
 const { exigirDirectiva } = require("../middleware/auth");
-const { firestore } = require("../firebase");
 const { normalizarEstadoAsistencia, notificarN8nAsistencia } = require("../notificar-n8n");
 
 const router = express.Router();
@@ -12,27 +11,6 @@ const CAPACIDAD_MAXIMA = 28;
 const LIMITE_AUDITORIA = 2000;
 const CAMPOS_AULA = ["nivel", "grado", "seccion", "turno"];
 const OBLIGATORIOS_ESTUDIANTE = ["nombres", "apellidos", ...CAMPOS_AULA];
-
-// Escribe en Firestore el documento que la APK consulta para saber si el alumno
-// ya registro hoy. procesado:true hace que el puente Firestore->MySQL lo ignore
-// (el registro ya vive en MySQL), pero la APK lo ve como "ya registrado".
-async function espejoAsistenciaFirestore(estudianteId, estado, observacion, fecha) {
-    try {
-        const f = fecha ? new Date(fecha + "T12:00:00") : new Date();
-        const yyyymmdd = f.toISOString().slice(0, 10).replace(/-/g, "");
-        await firestore.collection("asistencias").doc(`${estudianteId}_${yyyymmdd}`).set({
-            estudiante_id: Number(estudianteId),
-            estado: estado || "Presente",
-            observacion: observacion || "",
-            metodo_registro: "Web",
-            procesado: true,
-            origen: "web",
-            created_at: new Date()
-        }, { merge: true });
-    } catch (error) {
-        console.warn("No se pudo espejar asistencia a Firestore:", error.message);
-    }
-}
 
 function placeholders(count) {
     return Array(count).fill("?").join(", ");
@@ -290,7 +268,6 @@ router.post("/asistencias/marcar-aula", async (req, res) => {
             }
             ids.push(alu.id);
             const fechaDoc = fechaFinal || new Date().toISOString().slice(0, 10);
-            espejoAsistenciaFirestore(alu.id, estadoFinal, observacion, fechaDoc).catch(() => {});
         }
 
         // Avisos a n8n (WhatsApp) por cada alumno marcado
@@ -347,8 +324,7 @@ router.post("/asistencias/marcar", async (req, res) => {
         }
 
         notificarN8nAsistencia(estudianteId, estadoFinal).catch(() => {});
-        const fechaDoc = fechaFinal || new Date().toISOString().slice(0, 10);
-        espejoAsistenciaFirestore(estudianteId, estadoFinal, observacion, fechaDoc).catch(() => {});
+            const fechaDoc = fechaFinal || new Date().toISOString().slice(0, 10);
 
         await registrarAuditoria(query, req, {
             accion: "marcar_asistencia",
@@ -405,32 +381,6 @@ router.post("/:recurso", recurso("crear"), async (req, res) => {
             insertId = (await insertar(query, def.table, datos)).insertId;
         }
 
-        // Espejo en Firestore para el APK (no debe tumbar la respuesta si falla)
-        if (nombre === "estudiantes") {
-            try {
-                const apoderado = req.body?.apoderado;
-                await firestore.collection("estudiantes").doc(String(insertId)).set({
-                    nombre: `${datos.nombres || ""} ${datos.apellidos || ""}`.trim(),
-                    nombres: datos.nombres || null,
-                    apellidos: datos.apellidos || null,
-                    sexo: datos.sexo || null,
-                    codigo: String(insertId),
-                    dni: datos.dni || null,
-                    nivel: datos.nivel || null,
-                    grado: datos.grado ?? null,
-                    seccion: datos.seccion || null,
-                    turno: datos.turno || null,
-                    telefono_apoderado: apoderado?.telefono ? normalizarTelefonoPe(apoderado.telefono) : null,
-                    nombre_apoderado: apoderado?.nombres
-                        ? `${apoderado.nombres} ${apoderado.apellidos || ""}`.trim()
-                        : null,
-                    asistenciaTomada: false,
-                    fechaAsistencia: null
-                });
-            } catch (error) {
-                console.error("Error al sincronizar alumno con Firestore:", error.message);
-            }
-        }
 
         // Si el alumno se registró con datos de apoderado, se guarda el padre y el vínculo
         if (nombre === "estudiantes" && req.body?.apoderado) {
@@ -520,39 +470,6 @@ router.put("/:recurso/:id", recurso("editar"), async (req, res) => {
 
         const actualizado = await query(`SELECT * FROM "${def.table}" WHERE id = ? LIMIT 1`, [req.params.id]);
 
-        // Espejo en Firestore para el APK: merge para no borrar asistenciaTomada/fechaAsistencia
-        if (def.table === "estudiantes" && actualizado[0]) {
-            try {
-                const est = actualizado[0];
-                const vinculos = await query(
-                    `SELECT p.nombres, p.apellidos, p.telefono
-                     FROM estudiante_padre ep
-                     INNER JOIN padres p ON p.id = ep.padre_id
-                     WHERE ep.estudiante_id = ? LIMIT 1`,
-                    [req.params.id]
-                );
-                const apoderado = vinculos[0] || req.body?.apoderado || null;
-                await firestore.collection("estudiantes").doc(String(est.id)).set({
-                    nombre: `${est.nombres || ""} ${est.apellidos || ""}`.trim(),
-                    nombres: est.nombres || null,
-                    apellidos: est.apellidos || null,
-                    sexo: est.sexo || null,
-                    codigo: String(est.id),
-                    dni: est.dni || null,
-                    nivel: est.nivel || null,
-                    grado: est.grado ?? null,
-                    seccion: est.seccion || null,
-                    turno: est.turno || null,
-                    telefono_apoderado: apoderado?.telefono ? normalizarTelefonoPe(apoderado.telefono) : null,
-                    nombre_apoderado: apoderado?.nombres
-                        ? `${apoderado.nombres} ${apoderado.apellidos || ""}`.trim()
-                        : null
-                }, { merge: true });
-            } catch (error) {
-                console.error("Error al sincronizar alumno con Firestore:", error.message);
-            }
-        }
-
         res.json(actualizado[0]);
     } catch (error) {
         responderError(res, error, "No se pudo actualizar.");
@@ -567,14 +484,6 @@ router.delete("/:recurso/:id", recurso("eliminar"), async (req, res) => {
 
         await query(`DELETE FROM "${def.table}" WHERE id = ?`, [req.params.id]);
 
-        // Borrar también el espejo en Firestore para que el APK no vea al alumno eliminado
-        if (def.table === "estudiantes") {
-            try {
-                await firestore.collection("estudiantes").doc(String(req.params.id)).delete();
-            } catch (error) {
-                console.error("Error al borrar alumno de Firestore:", error.message);
-            }
-        }
 
         await registrarAuditoria(query, req, {
             accion: "ELIMINAR",

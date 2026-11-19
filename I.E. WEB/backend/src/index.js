@@ -12,7 +12,6 @@ const {
     normalizarEstadoAsistencia,
     notificarN8nAsistencia
 } = require("./notificar-n8n");
-const firestoreBridge = require("./firestore-bridge");
 
 const app = express();
 const frontendDir = path.join(__dirname, "..", "..");
@@ -300,7 +299,6 @@ async function iniciar() {
         console.log(`Backend I.E. Liceo en http://localhost:${config.port}`);
         console.log(`Backend accesible desde la red local en el puerto ${config.port}`);
         console.log(`Login: http://localhost:${config.port}/paginas/index.html`);
-        // firestoreBridge.iniciar(); // desactivado: la app ya no usa Firestore como fuente
     });
 }
 
