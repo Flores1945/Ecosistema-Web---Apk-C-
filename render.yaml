@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: liceo-web
+    runtime: node
+    rootDir: I.E. WEB/backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Las siguientes se configuran a mano en el dashboard de Render
+      # (render.yaml no acepta valores secretos con sync:false)
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: N8N_WEBHOOK_ASISTENCIA
+        sync: false
+      - key: N8N_API_KEY
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+    # Render inyecta PORT automáticamente; el código usa process.env.PORT || 3000
+    healthCheckPath: /api/health
+    autoDeploy: true
+    plan: free

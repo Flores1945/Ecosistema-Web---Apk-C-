@@ -58,6 +58,7 @@ const PAGINA_DE = {
     tutoria: "tutoria",
     "foro-temas": "foro",
     "foro-respuestas": "foro",
+    reglamentos: "reglamento",
     aulas: "aulas"
 };
 

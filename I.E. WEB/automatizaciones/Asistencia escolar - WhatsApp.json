@@ -1,0 +1,1634 @@
+{
+  "name": "Asistencia escolar - WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "asistencia",
+        "options": {}
+      },
+      "id": "018d1034-0612-4488-a043-d7741728e888",
+      "name": "Webhook Asistencia",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        368
+      ],
+      "webhookId": "98b2f15d-8716-473c-8571-29c81d8c4362"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "nombre",
+              "type": "string",
+              "value": "={{ String($json.body.nombre_alumno || $json.body.Nombre || \"\").trim() }}"
+            },
+            {
+              "id": "a2",
+              "name": "grado",
+              "type": "string",
+              "value": "={{ String($json.body.grado || $json.body.Grado || \"\").trim() }}"
+            },
+            {
+              "id": "a3",
+              "name": "seccion",
+              "type": "string",
+              "value": "={{ String($json.body.seccion || $json.body.Seccion || \"\").trim() }}"
+            },
+            {
+              "id": "a4",
+              "name": "telefono",
+              "type": "string",
+              "value": "={{ String($json.body.telefono_apoderado || $json.body.TelefonoPadre || \"\").replace(/[^0-9]/g, \"\") }}"
+            },
+            {
+              "id": "a5",
+              "name": "fecha",
+              "type": "string",
+              "value": "={{ String($json.body.fecha || $json.body.Fecha || \"\").trim() }}"
+            },
+            {
+              "id": "a6",
+              "name": "hora",
+              "type": "string",
+              "value": "={{ String($json.body.hora || $json.body.Hora || \"\").trim() }}"
+            },
+            {
+              "id": "a7",
+              "name": "estado",
+              "type": "string",
+              "value": "={{ String($json.body.estado || $json.body.Estado || \"\").trim().toLowerCase() }}"
+            },
+            {
+              "id": "a8",
+              "name": "alumno_id",
+              "type": "string",
+              "value": "={{ String($json.body.codigo_alumno || $json.body.AlumnoId || ($json.body.nombre_alumno + \"|\" + $json.body.grado + \"|\" + $json.body.seccion)) }}"
+            },
+            {
+              "id": "a9",
+              "name": "saludo",
+              "type": "string",
+              "value": "={{ $now.setZone(\"America/Lima\").hour < 12 ? \"Buenos días\" : \"Buenas tardes\" }}"
+            },
+            {
+              "id": "a10",
+              "name": "clave",
+              "type": "string",
+              "value": "={{ String($json.body.codigo_alumno || $json.body.AlumnoId || ($json.body.nombre_alumno + \"|\" + $json.body.grado + \"|\" + $json.body.seccion)) + \"|\" + String($json.body.fecha || $json.body.Fecha) + \"|\" + String($json.body.estado || $json.body.Estado || \"\").trim().toLowerCase() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "171ef0dd-86e7-4b5e-82eb-634c8f0e2b15",
+      "name": "Normalizar datos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "19xevMBWfsokF0lr",
+          "cachedResultName": "asistencia_envios"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "clave",
+              "keyValue": "={{ $json.clave }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "e053502a-1e99-455a-bfc0-6d8d98d61696",
+      "name": "Buscar envío previo",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        400
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.id ? \"existe\" : \"nuevo\" }}",
+              "rightValue": "nuevo",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "72c77931-43a0-44c4-a956-885ec318d06a",
+      "name": "Es envío nuevo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s1",
+                    "leftValue": "={{ $(\"Normalizar datos\").item.json.estado }}",
+                    "rightValue": "puntual",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Puntual"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s2",
+                    "leftValue": "={{ $(\"Normalizar datos\").item.json.estado }}",
+                    "rightValue": "tardanza",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tardanza"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s3",
+                    "leftValue": "={{ $(\"Normalizar datos\").item.json.estado }}",
+                    "rightValue": "falta",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Falta"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9baf9ba-eb74-41fd-b5c5-0ad67e4834ab",
+      "name": "Según estado",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1216,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "<__PLACEHOLDER_VALUE__ID del número de WhatsApp Business (Phone Number ID)__>",
+        "recipientPhoneNumber": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+        "textBody": "={{ $(\"Normalizar datos\").item.json.saludo }}, estimado padre de familia o apoderado. Le informamos que su hijo(a) {{ $(\"Normalizar datos\").item.json.nombre }} de {{ $(\"Normalizar datos\").item.json.grado }} - {{ $(\"Normalizar datos\").item.json.seccion }} registró su asistencia el día de hoy {{ $(\"Normalizar datos\").item.json.fecha }} a las {{ $(\"Normalizar datos\").item.json.hora }}.",
+        "additionalFields": {}
+      },
+      "id": "fc89064d-a8b2-469b-98f9-dd3bd2ea496d",
+      "name": "Mensaje Puntual",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        1152
+      ],
+      "webhookId": "91b619b8-b0e6-4dbe-9231-b509e0ae1f65"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "19xevMBWfsokF0lr",
+          "cachedResultName": "asistencia_envios"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "clave": "={{ $(\"Normalizar datos\").item.json.clave }}",
+            "alumno_id": "={{ $(\"Normalizar datos\").item.json.alumno_id }}",
+            "nombre": "={{ $(\"Normalizar datos\").item.json.nombre }}",
+            "grado": "={{ $(\"Normalizar datos\").item.json.grado }}",
+            "seccion": "={{ $(\"Normalizar datos\").item.json.seccion }}",
+            "telefono": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+            "fecha": "={{ $(\"Normalizar datos\").item.json.fecha }}",
+            "hora": "={{ $(\"Normalizar datos\").item.json.hora }}",
+            "estado": "={{ $(\"Normalizar datos\").item.json.estado }}",
+            "conv_state": "cerrado"
+          },
+          "schema": [
+            {
+              "id": "clave",
+              "displayName": "clave",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alumno_id",
+              "displayName": "alumno_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "grado",
+              "displayName": "grado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seccion",
+              "displayName": "seccion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conv_state",
+              "displayName": "conv_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "41e4bf49-ff9e-4ef5-ad53-9f29b0e4ae77",
+      "name": "Registrar envío Puntual",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "<__PLACEHOLDER_VALUE__ID del número de WhatsApp Business (Phone Number ID)__>",
+        "recipientPhoneNumber": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+        "textBody": "={{ $(\"Normalizar datos\").item.json.saludo }}, estimado padre de familia o apoderado. Le informamos que su hijo(a) {{ $(\"Normalizar datos\").item.json.nombre }} de {{ $(\"Normalizar datos\").item.json.grado }} - {{ $(\"Normalizar datos\").item.json.seccion }} registró su asistencia con tardanza el día de hoy {{ $(\"Normalizar datos\").item.json.fecha }} a las {{ $(\"Normalizar datos\").item.json.hora }}. Por favor, más puntualidad para la próxima. Gracias.",
+        "additionalFields": {}
+      },
+      "id": "368b1ad1-5eb9-4225-8c98-f0f9a23d68d8",
+      "name": "Mensaje Tardanza",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        1344
+      ],
+      "webhookId": "3907f836-a0a1-4d31-88e8-c447d1dc0cf1"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "19xevMBWfsokF0lr",
+          "cachedResultName": "asistencia_envios"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "clave": "={{ $(\"Normalizar datos\").item.json.clave }}",
+            "alumno_id": "={{ $(\"Normalizar datos\").item.json.alumno_id }}",
+            "nombre": "={{ $(\"Normalizar datos\").item.json.nombre }}",
+            "grado": "={{ $(\"Normalizar datos\").item.json.grado }}",
+            "seccion": "={{ $(\"Normalizar datos\").item.json.seccion }}",
+            "telefono": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+            "fecha": "={{ $(\"Normalizar datos\").item.json.fecha }}",
+            "hora": "={{ $(\"Normalizar datos\").item.json.hora }}",
+            "estado": "={{ $(\"Normalizar datos\").item.json.estado }}",
+            "conv_state": "cerrado"
+          },
+          "schema": [
+            {
+              "id": "clave",
+              "displayName": "clave",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alumno_id",
+              "displayName": "alumno_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "grado",
+              "displayName": "grado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seccion",
+              "displayName": "seccion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conv_state",
+              "displayName": "conv_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a67db680-2885-45d0-8a8e-52a1b56feb68",
+      "name": "Registrar envío Tardanza",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        1344
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "<__PLACEHOLDER_VALUE__ID del número de WhatsApp Business (Phone Number ID)__>",
+        "recipientPhoneNumber": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+        "textBody": "={{ $(\"Normalizar datos\").item.json.saludo }}, estimado padre de familia o apoderado. Le informamos que su hijo(a) {{ $(\"Normalizar datos\").item.json.nombre }} de {{ $(\"Normalizar datos\").item.json.grado }} - {{ $(\"Normalizar datos\").item.json.seccion }} no asistió el día de hoy {{ $(\"Normalizar datos\").item.json.fecha }}.",
+        "additionalFields": {}
+      },
+      "id": "95f688b2-5a95-4477-a577-a3df1396991b",
+      "name": "Mensaje Falta",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        1536
+      ],
+      "webhookId": "26d02d3a-fce4-4d1a-93bc-b68ef0976e26"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "<__PLACEHOLDER_VALUE__ID del número de WhatsApp Business (Phone Number ID)__>",
+        "recipientPhoneNumber": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+        "textBody": "¿Desea enviar una justificación debido a la falta? (Responda SI o NO)",
+        "additionalFields": {}
+      },
+      "id": "5b734592-cc9e-4805-acc6-0b0e63a4ba1b",
+      "name": "Pregunta justificación",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        1536
+      ],
+      "webhookId": "83fe82a8-10f7-4381-8ceb-e8076f34103d"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "19xevMBWfsokF0lr",
+          "cachedResultName": "asistencia_envios"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "clave": "={{ $(\"Normalizar datos\").item.json.clave }}",
+            "alumno_id": "={{ $(\"Normalizar datos\").item.json.alumno_id }}",
+            "nombre": "={{ $(\"Normalizar datos\").item.json.nombre }}",
+            "grado": "={{ $(\"Normalizar datos\").item.json.grado }}",
+            "seccion": "={{ $(\"Normalizar datos\").item.json.seccion }}",
+            "telefono": "={{ $(\"Normalizar datos\").item.json.telefono }}",
+            "fecha": "={{ $(\"Normalizar datos\").item.json.fecha }}",
+            "hora": "={{ $(\"Normalizar datos\").item.json.hora }}",
+            "estado": "={{ $(\"Normalizar datos\").item.json.estado }}",
+            "conv_state": "esperando_decision"
+          },
+          "schema": [
+            {
+              "id": "clave",
+              "displayName": "clave",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alumno_id",
+              "displayName": "alumno_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "grado",
+              "displayName": "grado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seccion",
+              "displayName": "seccion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conv_state",
+              "displayName": "conv_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bb90d15d-f61e-4e78-80f1-fd6f548c7075",
+      "name": "Registrar envío Falta",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "4b5375ba-8cb0-4684-a997-153b6af01d61",
+      "name": "Respuesta WhatsApp",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        912
+      ],
+      "webhookId": "6bfa1a4b-71a5-43cc-97f0-85748efb77cb"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "telefono",
+              "type": "string",
+              "value": "={{ String($json.messages[0].from).replace(/[^0-9]/g, \"\") }}"
+            },
+            {
+              "id": "b0",
+              "name": "tipo",
+              "type": "string",
+              "value": "={{ $json.messages[0].type }}"
+            },
+            {
+              "id": "b2",
+              "name": "texto",
+              "type": "string",
+              "value": "={{ $json.messages[0].type === \"text\" ? String($json.messages[0].text.body || \"\").trim() : \"\" }}"
+            },
+            {
+              "id": "b4",
+              "name": "media_id",
+              "type": "string",
+              "value": "={{ ($json.messages[0].audio && $json.messages[0].audio.id) || ($json.messages[0].image && $json.messages[0].image.id) || \"\" }}"
+            },
+            {
+              "id": "b5",
+              "name": "caption",
+              "type": "string",
+              "value": "={{ ($json.messages[0].image && $json.messages[0].image.caption) || \"\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "240ea6be-45cf-4ce0-ac08-bbc3d622489c",
+      "name": "Mensaje entrante",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1",
+              "leftValue": "={{ $json.tipo }}",
+              "rightValue": "text",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e662ae14-46d9-490f-a65a-7425f59d9eae",
+      "name": "Entrada: texto",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "j0",
+              "name": "telefono",
+              "type": "string",
+              "value": "={{ $(\"Mensaje entrante\").item.json.telefono }}"
+            },
+            {
+              "id": "j1",
+              "name": "origen",
+              "type": "string",
+              "value": "={{ $(\"Mensaje entrante\").item.json.tipo === \"audio\" ? \"audio (transcripción)\" : ($(\"Mensaje entrante\").item.json.tipo === \"image\" ? \"imagen (análisis de visión)\" : \"texto\") }}"
+            },
+            {
+              "id": "j2",
+              "name": "contenido",
+              "type": "string",
+              "value": "={{ [$json.text, $json.content, $(\"Mensaje entrante\").item.json.texto, $(\"Mensaje entrante\").item.json.caption].filter(v => typeof v === \"string\" && v.trim()).join(\" | \") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2cf1fc2b-bb78-40b5-b8d7-738db95b02f7",
+      "name": "Preparar mensaje",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        2192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f2",
+              "leftValue": "={{ $json.tipo }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b0ef1da4-15b5-4164-896c-899c63af2456",
+      "name": "Entrada: audio",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $(\"Mensaje entrante\").item.json.media_id }}"
+      },
+      "id": "029fce27-fd17-4fa8-a20e-3831573e6d06",
+      "name": "Obtener URL del audio",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        1888
+      ],
+      "webhookId": "95e2e239-694a-4ae4-a071-5450e54508f1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "debed734-fc42-4105-b5c3-c354b61f90ea",
+      "name": "Descargar audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        176,
+        2128
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "es"
+        }
+      },
+      "id": "142338f8-0dfd-40fd-bf00-b94b8b7cea79",
+      "name": "Transcribir audio (Whisper)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        2336
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f3",
+              "leftValue": "={{ $json.tipo }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8e20130e-7ded-440a-9fec-9d16d4ea538c",
+      "name": "Entrada: imagen",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $(\"Mensaje entrante\").item.json.media_id }}"
+      },
+      "id": "1fc1081a-8770-4891-aad2-7583aafe5bea",
+      "name": "Obtener URL de la imagen",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        1584
+      ],
+      "webhookId": "6b39797e-e49f-48fd-a1f8-7211d4452a25"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "135a9f55-d221-4ebb-aef8-57779f87628f",
+      "name": "Descargar imagen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.4-mini",
+          "cachedResultName": "GPT-5.4-MINI"
+        },
+        "text": "Eres un asistente administrativo de un colegio. Analiza esta imagen, que debería ser un certificado médico, receta o documento de justificación. Extrae en español: tipo de documento, nombre del paciente si aparece, fecha de emisión, días de descanso indicados, periodo de vigencia, diagnóstico o motivo si aparece, y si el documento parece legible y válido. Si la imagen no es un documento médico o administrativo, indícalo claramente. Responde solo con texto plano, sin inventar datos.",
+        "inputType": "base64",
+        "options": {
+          "detail": "high",
+          "maxTokens": 600
+        }
+      },
+      "id": "fb84e3f1-380e-4ff5-8b6c-a72dabf64cca",
+      "name": "Analizar certificado (visión)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        512,
+        2096
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Teléfono del padre: {{ $json.telefono }}\nTipo de mensaje recibido: {{ $json.origen }}\nContenido:\n{{ $json.contenido || \"El padre envió un mensaje sin contenido legible.\" }}",
+        "options": {
+          "systemMessage": "=Eres el asistente virtual empático y formal de la I.E. Liceo Trujillo. Conversas por WhatsApp con padres de familia o apoderados. Hoy es {{ $now.setZone(\"America/Lima\").toFormat(\"dd/MM/yyyy\") }}. Tú decides, según la intención del padre, qué hacer; no sigues un guion fijo.\n\nHerramientas:\n- consultar_estado_alumno: devuelve las conversaciones abiertas de este padre (id, alumno_id, nombre, grado, seccion, fecha de la falta y conv_state: esperando_decision o esperando_motivo). Si no devuelve filas, no hay justificación pendiente.\n- consultar_reglamento: devuelve las normas vigentes del colegio.\n- actualizar_estado_conversacion: cambia conv_state de una fila (pasa su id).\n- guardar_justificacion: registra la justificación en el sistema del colegio.\n\nCómo decidir:\n1. Si el mensaje trata de una falta, de justificar, o es un SI/NO o un motivo, llama primero a consultar_estado_alumno.\n2. Estado esperando_decision: si el padre acepta justificar (SI), llama a actualizar_estado_conversacion con esperando_motivo y pídele brevemente el motivo (puede escribirlo, enviar un audio o una foto del certificado). Si rechaza (NO), cierra con estado cerrado y confirma que no se registrará justificación. Si no queda claro, pídele que responda SI o NO.\n3. Estado esperando_motivo (o el padre explica espontáneamente el motivo de la falta abierta): evalúa el contenido (texto, transcripción de audio o análisis de un certificado). Si hay un motivo válido y, si hay documento, es legible y coherente, llama a guardar_justificacion con los datos de la fila y el motivo resumido de forma formal; después llama a actualizar_estado_conversacion con cerrado y confirma: \"Su justificación ha sido registrada con éxito. Gracias\". Si no hay un motivo identificable o el documento no es válido, explica con amabilidad qué falta y vuelve a pedirlo; no guardes nada.\n4. Si el padre hace una duda sobre normas, horarios, tardanzas, uniforme, etc., llama a consultar_reglamento y responde solo con esa información. Si no aparece, dilo y sugiere comunicarse con secretaría. Puedes atender la duda y luego recordar la justificación pendiente si existe.\n5. Si no hay conversación abierta y el padre quiere justificar una falta, indícale que debe responder SI al aviso de inasistencia que envía el colegio.\n\nReglas:\n- Nunca inventes datos, fechas ni normas, y nunca guardes una justificación sin motivo válido.\n- No guardes dos veces la misma justificación.\n- Responde en español, tono formal y cálido, mensajes cortos aptos para WhatsApp, sin mencionar herramientas ni detalles técnicos.\n- Tu respuesta final es el único mensaje que recibe el padre."
+        }
+      },
+      "id": "aa045253-93ec-4bfb-b2e8-7c759385e541",
+      "name": "Agente Liceo Trujillo",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1152,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.4-mini",
+          "cachedResultName": "GPT-5.4-MINI"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "c85c80e6-b537-4680-ad0b-b0cf249271ac",
+      "name": "Modelo del agente",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1104,
+        2176
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Mensaje entrante').item.json.telefono }}",
+        "contextWindowLength": 10
+      },
+      "id": "55ac6f1f-b253-4df8-a6de-e6e6e1f0e3b0",
+      "name": "Memoria de la conversación",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        1232,
+        2256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "19xevMBWfsokF0lr",
+          "cachedResultName": "asistencia_envios"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "telefono",
+              "keyValue": "={{ $('Mensaje entrante').item.json.telefono }}"
+            },
+            {
+              "keyName": "conv_state",
+              "condition": "neq",
+              "keyValue": "cerrado"
+            }
+          ]
+        },
+        "limit": 3,
+        "orderBy": true
+      },
+      "id": "86b19859-97a5-4f91-9e30-69d880468be1",
+      "name": "consultar_estado_alumno",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1712,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "jqgVZ29fSJoDxGA0",
+          "cachedResultName": "reglamento_escolar"
+        },
+        "returnAll": true
+      },
+      "id": "b9b071ad-4e0c-4475-a62d-37ac4dfbf0fa",
+      "name": "consultar_reglamento",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1536,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "19xevMBWfsokF0lr",
+          "cachedResultName": "asistencia_envios"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id_fila', 'Campo id de la fila devuelta por consultar_estado_alumno') }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "conv_state": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('nuevo_estado', 'Nuevo estado: esperando_motivo, esperando_decision o cerrado') }}"
+          },
+          "schema": [
+            {
+              "id": "conv_state",
+              "displayName": "conv_state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f7618b35-d765-4a81-802d-63280aaa03ac",
+      "name": "actualizar_estado_conversacion",
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "<__PLACEHOLDER_VALUE__URL de tu backend Node.js, ej. https://tu-servidor.com/api/justificaciones__>",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ codigo_alumno: $fromAI(\"codigo_alumno\", \"alumno_id de la fila de consultar_estado_alumno\", \"string\"), nombre_alumno: $fromAI(\"nombre_alumno\", \"nombre del alumno\", \"string\"), grado: $fromAI(\"grado\", \"grado del alumno\", \"string\"), seccion: $fromAI(\"seccion\", \"sección del alumno\", \"string\"), fecha: $fromAI(\"fecha_falta\", \"fecha de la falta que se justifica\", \"string\"), estado: \"Justificado\", telefono_apoderado: $(\"Mensaje entrante\").item.json.telefono, origen: $(\"Preparar mensaje\").item.json.origen, motivo_resumen: $fromAI(\"motivo_resumen\", \"resumen formal del motivo en una o dos frases, en español\", \"string\"), tipo: $fromAI(\"tipo\", \"salud, familiar, transporte u otro\", \"string\"), dias: $fromAI(\"dias\", \"días de inasistencia o descanso; 1 si no se indica\", \"number\"), evidencia: $fromAI(\"evidencia\", \"ninguna, certificado_medico, receta, audio u otro\", \"string\"), documento_valido: $fromAI(\"documento_valido\", \"true si el documento es legible y coherente o no hay documento\", \"boolean\"), texto_original: $(\"Preparar mensaje\").item.json.contenido }) }}",
+        "options": {}
+      },
+      "id": "4a43b4f8-e1c4-4d4d-a8f1-2390154b10b5",
+      "name": "guardar_justificacion",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        1360,
+        2336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "<__PLACEHOLDER_VALUE__ID del número de WhatsApp Business (Phone Number ID)__>",
+        "recipientPhoneNumber": "={{ $(\"Mensaje entrante\").item.json.telefono }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "ea02e542-e3ea-4835-a3ac-dbde773e67f8",
+      "name": "Responder al padre",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1824,
+        1952
+      ],
+      "webhookId": "a091e518-2b2d-4a79-8ec8-79cc027ac314"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Asistencia": {
+      "main": [
+        [
+          {
+            "node": "Normalizar datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar datos": {
+      "main": [
+        [
+          {
+            "node": "Buscar envío previo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar envío previo": {
+      "main": [
+        [
+          {
+            "node": "Es envío nuevo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es envío nuevo": {
+      "main": [
+        [
+          {
+            "node": "Según estado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Según estado": {
+      "main": [
+        [
+          {
+            "node": "Mensaje Puntual",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje Tardanza",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mensaje Falta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Puntual": {
+      "main": [
+        [
+          {
+            "node": "Registrar envío Puntual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Tardanza": {
+      "main": [
+        [
+          {
+            "node": "Registrar envío Tardanza",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje Falta": {
+      "main": [
+        [
+          {
+            "node": "Pregunta justificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pregunta justificación": {
+      "main": [
+        [
+          {
+            "node": "Registrar envío Falta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Mensaje entrante",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje entrante": {
+      "main": [
+        [
+          {
+            "node": "Entrada: texto",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Entrada: audio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Entrada: imagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entrada: texto": {
+      "main": [
+        [
+          {
+            "node": "Preparar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar mensaje": {
+      "main": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entrada: audio": {
+      "main": [
+        [
+          {
+            "node": "Obtener URL del audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener URL del audio": {
+      "main": [
+        [
+          {
+            "node": "Descargar audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descargar audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribir audio (Whisper)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribir audio (Whisper)": {
+      "main": [
+        [
+          {
+            "node": "Preparar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entrada: imagen": {
+      "main": [
+        [
+          {
+            "node": "Obtener URL de la imagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener URL de la imagen": {
+      "main": [
+        [
+          {
+            "node": "Descargar imagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descargar imagen": {
+      "main": [
+        [
+          {
+            "node": "Analizar certificado (visión)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar certificado (visión)": {
+      "main": [
+        [
+          {
+            "node": "Preparar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Liceo Trujillo": {
+      "main": [
+        [
+          {
+            "node": "Responder al padre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo del agente": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria de la conversación": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_estado_alumno": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_reglamento": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "actualizar_estado_conversacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "guardar_justificacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Liceo Trujillo",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2ad8475b-3c18-4671-b55a-363392efc53d",
+  "meta": {
+    "instanceId": "074cd71b57bf9a0d141dbed2cb33f5e33a43cfab51d7834d34443993317c84c6"
+  },
+  "nodeGroups": [
+    {
+      "id": "a9c5da10-2dd4-414a-8aa5-259e69f38d21",
+      "name": "Evitar duplicados",
+      "nodeIds": [
+        "171ef0dd-86e7-4b5e-82eb-634c8f0e2b15",
+        "e053502a-1e99-455a-bfc0-6d8d98d61696",
+        "72c77931-43a0-44c4-a956-885ec318d06a"
+      ],
+      "description": "Recibe el POST del backend y descarta el aviso si ya se envió ese estado al alumno hoy"
+    },
+    {
+      "id": "2b14bdb0-1a5d-403f-a83c-ab5185b1f881",
+      "name": "Avisar al padre",
+      "nodeIds": [
+        "f9baf9ba-eb74-41fd-b5c5-0ad67e4834ab",
+        "fc89064d-a8b2-469b-98f9-dd3bd2ea496d",
+        "368b1ad1-5eb9-4225-8c98-f0f9a23d68d8",
+        "95f688b2-5a95-4477-a577-a3df1396991b",
+        "5b734592-cc9e-4805-acc6-0b0e63a4ba1b",
+        "41e4bf49-ff9e-4ef5-ad53-9f29b0e4ae77",
+        "a67db680-2885-45d0-8a8e-52a1b56feb68",
+        "bb90d15d-f61e-4e78-80f1-fd6f548c7075"
+      ],
+      "description": "Envía el mensaje formal según Puntual, Tardanza o Falta y guarda el candado anti-spam"
+    },
+    {
+      "id": "e9dd9021-3c88-4324-a6e5-c8070c66c185",
+      "name": "Entender mensaje del padre",
+      "nodeIds": [
+        "240ea6be-45cf-4ce0-ac08-bbc3d622489c",
+        "e662ae14-46d9-490f-a65a-7425f59d9eae",
+        "b0ef1da4-15b5-4164-896c-899c63af2456",
+        "8e20130e-7ded-440a-9fec-9d16d4ea538c",
+        "029fce27-fd17-4fa8-a20e-3831573e6d06",
+        "debed734-fc42-4105-b5c3-c354b61f90ea",
+        "142338f8-0dfd-40fd-bf00-b94b8b7cea79",
+        "1fc1081a-8770-4891-aad2-7583aafe5bea",
+        "135a9f55-d221-4ebb-aef8-57779f87628f",
+        "fb84e3f1-380e-4ff5-8b6c-a72dabf64cca",
+        "2cf1fc2b-bb78-40b5-b8d7-738db95b02f7"
+      ],
+      "description": "Recibe el WhatsApp del padre y lo convierte en texto: lo escrito, la transcripción del audio o la lectura del certificado en foto"
+    },
+    {
+      "id": "f18fb98e-9b17-41ba-b77e-e6a586a34973",
+      "name": "Conversar con el agente",
+      "nodeIds": [
+        "aa045253-93ec-4bfb-b2e8-7c759385e541",
+        "c85c80e6-b537-4680-ad0b-b0cf249271ac",
+        "55ac6f1f-b253-4df8-a6de-e6e6e1f0e3b0",
+        "86b19859-97a5-4f91-9e30-69d880468be1",
+        "b9b071ad-4e0c-4475-a62d-37ac4dfbf0fa",
+        "f7618b35-d765-4a81-802d-63280aaa03ac",
+        "4a43b4f8-e1c4-4d4d-a8f1-2390154b10b5",
+        "ea02e542-e3ea-4835-a3ac-dbde773e67f8"
+      ],
+      "description": "El agente decide solo si responde una duda del reglamento o recoge y registra la justificación, y contesta por WhatsApp"
+    }
+  ],
+  "id": "jwHElJ5qwkMId8dq",
+  "tags": []
+}

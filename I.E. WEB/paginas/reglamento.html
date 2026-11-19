@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reglamento Escolar - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../estilos/tema.css">
+    <link rel="stylesheet" href="../estilos/panel.css">
+    <link rel="stylesheet" href="../estilos/alumnos.css">
+</head>
+<body data-pagina="reglamento">
+
+    <div class="layout">
+        <!-- BARRA LATERAL IZQUIERDA: Navegación Principal -->
+        <aside class="barra barra-izquierda">
+            <img src="../imagenes/escudo.png" alt="Escudo I.E. Liceo Trujillo" class="escudo-liceo">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;"></nav>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="contenido">
+            <!-- BANNER DE PÁGINA -->
+            <div class="welcome-banner">
+                <h1>📜 Reglamento Escolar</h1>
+                <p id="subtituloPagina">Normas, artículos y preguntas frecuentes del colegio</p>
+                <div class="badge-role">Alimentado por el agente IA de WhatsApp</div>
+            </div>
+
+            <!-- FORMULARIO DE REGISTRO/EDICIÓN -->
+            <div class="formulario-alumno" id="panelFormulario">
+                <h2 id="tituloFormulario">📝 Nuevo artículo</h2>
+                <form id="formReglamento">
+                    <input type="hidden" id="reglamentoId">
+
+                    <div class="formulario-grid">
+                        <div class="form-grupo">
+                            <label for="titulo">Título</label>
+                            <input type="text" id="titulo" required maxlength="150" placeholder="Ej: Tolerancia de tardanzas">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="categoria">Categoría</label>
+                            <input type="text" id="categoria" maxlength="50" placeholder="Ej: Disciplina" list="categoriasSugeridas">
+                            <datalist id="categoriasSugeridas">
+                                <option value="Disciplina"></option>
+                                <option value="Asistencia"></option>
+                                <option value="Presentacion"></option>
+                                <option value="Sanciones"></option>
+                                <option value="Uniforme"></option>
+                                <option value="General"></option>
+                            </datalist>
+                        </div>
+
+                        <div class="form-grupo" style="grid-column: 1 / -1;">
+                            <label for="contenido">Contenido</label>
+                            <textarea id="contenido" required rows="6" placeholder="Escribe la norma, artículo o respuesta frecuente tal como debe responder el asistente de WhatsApp..."></textarea>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="activo">
+                                <input type="checkbox" id="activo" checked style="width: auto; margin-right: 6px;">
+                                Activo (visible para el asistente IA)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="formulario-acciones">
+                        <button type="submit" class="btn-funcional-inline" id="guardarReglamentoBtn">Guardar artículo</button>
+                        <button type="button" class="btn-secundario" id="limpiarFormBtn">Limpiar Formulario</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filtros-panel">
+                <h2>🔍 Filtrar artículos</h2>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label for="filtroCategoria">Categoría</label>
+                        <select id="filtroCategoria">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroBusqueda">Buscar</label>
+                        <input type="text" id="filtroBusqueda" placeholder="Título o contenido...">
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroEstado">Estado</label>
+                        <select id="filtroEstado">
+                            <option value="">Todos</option>
+                            <option value="1">Activos</option>
+                            <option value="0">Inactivos</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA DE ARTÍCULOS -->
+            <div class="tabla-alumnos-wrap">
+                <table class="tabla-alumnos">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Contenido</th>
+                            <th>Estado</th>
+                            <th id="colAcciones">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaReglamentoBody"></tbody>
+                </table>
+            </div>
+
+            <p class="estado-alumnos" id="estadoReglamento"></p>
+        </main>
+
+        <!-- BARRA DERECHA -->
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">📊 Estadísticas</h2>
+            <div class="widget-card card-estadistica">
+                <div class="estadistica-icon">📜</div>
+                <div class="estadistica-info">
+                    <h3 id="totalReglamentos">0</h3>
+                    <p>Artículos del reglamento</p>
+                </div>
+            </div>
+
+            <h2>💡 Ayuda</h2>
+            <div class="widget-card">
+                <p>Estos artículos alimentan al agente de IA de WhatsApp (n8n). Escribe las respuestas de forma clara y formal: el asistente las usará para responder a los padres de familia.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../scripts/reglamento.js"></script>
+</body>
+</html>

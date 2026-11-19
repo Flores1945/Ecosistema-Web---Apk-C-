@@ -6,7 +6,7 @@ module.exports = {
     estudiantes: {
         table: "estudiantes",
         fields: [
-            "usuario_id", "nombres", "apellidos", "dni", "fecha_nacimiento",
+            "usuario_id", "nombres", "apellidos", "sexo", "dni", "fecha_nacimiento",
             "nivel", "grado", "seccion", "turno", "direccion", "telefono",
             "email", "foto_url", "estado", "fecha_matricula", "es_demo"
         ]
@@ -72,6 +72,10 @@ module.exports = {
     documentos: {
         table: "documentos",
         fields: ["titulo", "descripcion", "categoria", "archivo_url", "subido_por", "anio"]
+    },
+    reglamentos: {
+        table: "school_regulations",
+        fields: ["titulo", "contenido", "categoria", "activo"]
     },
     libros: {
         table: "libros",

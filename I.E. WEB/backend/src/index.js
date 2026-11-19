@@ -2,10 +2,17 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const config = require("./config");
-const { pool } = require("./db");
+const { pool, query } = require("./db");
 const { autenticar } = require("./middleware/auth");
-const authRoutes = require("./routes/auth");
-const crudRoutes = require("./routes/crud");
+const authRoutes = require("./rutas/auth");
+const demoRoutes = require("./rutas/demo");
+const crudRoutes = require("./rutas/crud");
+const apkRoutes = require("./rutas/apk");
+const {
+    normalizarEstadoAsistencia,
+    notificarN8nAsistencia
+} = require("./notificar-n8n");
+const firestoreBridge = require("./firestore-bridge");
 
 const app = express();
 const frontendDir = path.join(__dirname, "..", "..");
@@ -20,14 +27,14 @@ app.use(express.json({ limit: "2mb" }));
 
 // Solo se publican las carpetas del sitio web. La carpeta backend (con el .env,
 // el código y el esquema de la base de datos) nunca se sirve al navegador.
-for (const carpeta of ["html", "css", "js"]) {
+for (const carpeta of ["paginas", "estilos", "scripts", "imagenes"]) {
     app.use(`/${carpeta}`, express.static(path.join(frontendDir, carpeta)));
 }
 
 app.get("/api/health", async (_req, res) => {
     try {
         await pool.query("SELECT 1");
-        res.json({ ok: true, db: config.db.database });
+        res.json({ ok: true, db: "postgresql" });
     } catch (error) {
         console.error(error);
         res.status(500).json({ ok: false, error: "No hay conexión con la base de datos." });
@@ -38,7 +45,13 @@ app.get("/api/health", async (_req, res) => {
 app.get("/api/public/estudiantes", async (_req, res) => {
     try {
         const { nivel, grado, seccion, turno } = _req.query;
-        let sql = "SELECT id, nombres, apellidos, nivel, grado, seccion, turno, dni FROM estudiantes WHERE estado = 'Activo'";
+        let sql = `SELECT e.id, e.nombres, e.apellidos, e.nivel, e.grado, e.seccion, e.turno, e.dni,
+            (SELECT p.telefono
+             FROM estudiante_padre ep
+             INNER JOIN padres p ON p.id = ep.padre_id
+             WHERE ep.estudiante_id = e.id
+             LIMIT 1) AS telefono_apoderado
+            FROM estudiantes e WHERE e.estado = 'Activo'`;
         const params = [];
         
         if (nivel) {
@@ -59,7 +72,7 @@ app.get("/api/public/estudiantes", async (_req, res) => {
         }
         
         sql += " ORDER BY id DESC";
-        const [rows] = await pool.query(sql, params);
+        const rows = await query(sql, params);
         res.json(rows);
     } catch (error) {
         console.error(error);
@@ -70,8 +83,14 @@ app.get("/api/public/estudiantes", async (_req, res) => {
 app.get("/api/public/estudiantes/:dni", async (_req, res) => {
     try {
         const { dni } = _req.params;
-        const [rows] = await pool.query(
-            "SELECT id, nombres, apellidos, nivel, grado, seccion, turno, dni FROM estudiantes WHERE dni = ? AND estado = 'Activo' LIMIT 1",
+        const rows = await query(
+            `SELECT e.id, e.nombres, e.apellidos, e.nivel, e.grado, e.seccion, e.turno, e.dni,
+                (SELECT p.telefono
+                 FROM estudiante_padre ep
+                 INNER JOIN padres p ON p.id = ep.padre_id
+                 WHERE ep.estudiante_id = e.id
+                 LIMIT 1) AS telefono_apoderado
+             FROM estudiantes e WHERE e.dni = ? AND e.estado = 'Activo' LIMIT 1`,
             [dni]
         );
         if (!rows.length) {
@@ -84,32 +103,129 @@ app.get("/api/public/estudiantes/:dni", async (_req, res) => {
     }
 });
 
+// La APK puede mandar "Asistencia", "Presente", "Tarde", "Ausente", etc.
 app.post("/api/public/asistencia", async (_req, res) => {
     try {
         const { estudiante_id, estado, observacion } = _req.body;
         if (!estudiante_id || !estado) {
             return res.status(400).json({ error: "Faltan datos obligatorios" });
         }
-        
+
+        const estadoNormalizado = normalizarEstadoAsistencia(estado);
+
         // Verificar si ya tiene asistencia hoy
-        const [existe] = await pool.query(
-            "SELECT id FROM asistencias WHERE estudiante_id = ? AND DATE(fecha) = CURDATE()",
+        const existe = await query(
+            "SELECT id FROM asistencias WHERE estudiante_id = ? AND fecha = CURDATE()",
             [estudiante_id]
         );
-        
+
         if (existe.length > 0) {
             return res.status(409).json({ error: "Ya tiene asistencia registrada hoy" });
         }
-        
-        const [result] = await pool.query(
+
+        const result = await query(
             "INSERT INTO asistencias (estudiante_id, fecha, estado, observacion, metodo_registro) VALUES (?, CURDATE(), ?, ?, 'APK Móvil')",
-            [estudiante_id, estado, observacion || null]
+            [estudiante_id, estadoNormalizado, observacion || null]
         );
-        
+
+        // Avisar a n8n para que envíe el WhatsApp al apoderado (sin bloquear la respuesta)
+        notificarN8nAsistencia(estudiante_id, estadoNormalizado).catch(() => {});
+
         res.status(201).json({ id: result.insertId, ok: true });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Error al registrar asistencia" });
+    }
+});
+
+// Reglamento escolar activo: lo consulta el agente de n8n (WhatsApp)
+app.get("/api/public/reglamento", async (_req, res) => {
+    try {
+        const rows = await query(
+            "SELECT titulo, contenido, categoria FROM school_regulations WHERE activo = TRUE ORDER BY id"
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error al obtener el reglamento" });
+    }
+});
+
+// Recibe la justificación que el agente de n8n validó por WhatsApp
+app.post("/api/public/justificacion", async (req, res) => {
+    try {
+        const n8nKey = process.env.N8N_API_KEY;
+        if (!n8nKey || req.headers["x-n8n-key"] !== n8nKey) {
+            return res.status(401).json({ error: "No autorizado" });
+        }
+
+        const b = req.body || {};
+        const codigoAlumno = String(b.codigo_alumno || "").trim();
+        const telefono = String(b.telefono_apoderado || "").replace(/\D/g, "");
+
+        // Resolver estudiante por DNI (codigo_alumno) o por nombre+grado+seccion
+        let estudiante = null;
+        if (/^\d{7}$/.test(codigoAlumno)) {
+            const rows = await query(
+                "SELECT id FROM estudiantes WHERE dni = ? LIMIT 1", [codigoAlumno]
+            );
+            estudiante = rows[0];
+        }
+        if (!estudiante && codigoAlumno && /^\d+$/.test(codigoAlumno)) {
+            const rows = await query(
+                "SELECT id FROM estudiantes WHERE id = ? LIMIT 1", [Number(codigoAlumno)]
+            );
+            estudiante = rows[0];
+        }
+        if (!estudiante && b.nombre_alumno) {
+            const rows = await query(
+                `SELECT id FROM estudiantes
+                 WHERE CONCAT(nombres, ' ', apellidos) LIKE ? AND grado = ? AND seccion = ?
+                 LIMIT 1`,
+                [`%${b.nombre_alumno}%`, Number(b.grado) || 0, b.seccion || ""]
+            );
+            estudiante = rows[0];
+        }
+        if (!estudiante) {
+            return res.status(404).json({ error: "No se encontró el estudiante" });
+        }
+
+        // Resolver padre por teléfono del apoderado
+        let padre = null;
+        if (telefono) {
+            const rows = await query(
+                "SELECT id FROM padres WHERE REPLACE(REPLACE(telefono, ' ', ''), '-', '') = ? LIMIT 1",
+                [telefono]
+            );
+            padre = rows[0];
+        }
+
+        const fecha = String(b.fecha || new Date().toISOString().slice(0, 10));
+        const dias = Math.max(1, Number(b.dias) || 1);
+        const fechaFin = new Date(fecha);
+        fechaFin.setDate(fechaFin.getDate() + dias - 1);
+        const fechaFinStr = fechaFin.toISOString().slice(0, 10);
+
+        const motivo = String(b.motivo_resumen || b.motivo || "Justificación enviada por WhatsApp").slice(0, 500);
+        const detalle = JSON.stringify({
+            tipo: b.tipo || null,
+            evidencia: b.evidencia || null,
+            origen: b.origen || null,
+            documento_valido: b.documento_valido ?? null,
+            texto_original: b.texto_original || null
+        });
+
+        const result = await query(
+            `INSERT INTO justificaciones
+             (estudiante_id, padre_id, fecha_inicio, fecha_fin, motivo, estado, observacion)
+             VALUES (?, ?, ?, ?, ?, 'Aprobada', ?)`,
+            [estudiante.id, padre?.id || null, fecha, fechaFinStr, motivo, detalle]
+        );
+
+        res.status(201).json({ ok: true, id: result.insertId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error al registrar justificación" });
     }
 });
 
@@ -123,7 +239,7 @@ app.put("/api/public/estudiantes/:id/dni", async (_req, res) => {
             return res.status(400).json({ error: "El DNI debe tener 7 dígitos numéricos" });
         }
         
-        const [result] = await pool.query(
+        const result = await query(
             "UPDATE estudiantes SET dni = ? WHERE id = ?",
             [dni, id]
         );
@@ -140,10 +256,12 @@ app.put("/api/public/estudiantes/:id/dni", async (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/apk", apkRoutes);
+app.use("/api/demo", autenticar, demoRoutes);
 app.use("/api", autenticar, crudRoutes);
 
 app.get("/", (_req, res) => {
-    res.redirect("/html/index.html");
+    res.redirect("/paginas/index.html");
 });
 
 // Errores generales: siempre responden JSON (nunca una página con detalles internos)
@@ -163,10 +281,9 @@ async function iniciar() {
         await pool.query("SELECT 1");
     } catch (error) {
         console.error(
-            `\nNo se pudo conectar a MySQL (${config.db.host}:${config.db.port}, usuario "${config.db.user}", base "${config.db.database}").\n` +
+            `\nNo se pudo conectar a PostgreSQL (Supabase).\n` +
             `Motivo: ${error.message}\n` +
-            "→ Revisa backend/.env y que MySQL esté encendido.\n" +
-            "→ Si la base todavía no existe, ejecuta:  npm run init-db\n"
+            "→ Revisa que DATABASE_URL esté definida en backend/.env.\n"
         );
         process.exit(1);
     }
@@ -181,8 +298,9 @@ async function iniciar() {
             process.exit(1);
         }
         console.log(`Backend I.E. Liceo en http://localhost:${config.port}`);
-        console.log(`Backend accesible desde red: http://192.168.100.8:${config.port}`);
-        console.log(`Login: http://localhost:${config.port}/html/index.html`);
+        console.log(`Backend accesible desde la red local en el puerto ${config.port}`);
+        console.log(`Login: http://localhost:${config.port}/paginas/index.html`);
+        // firestoreBridge.iniciar(); // desactivado: la app ya no usa Firestore como fuente
     });
 }
 

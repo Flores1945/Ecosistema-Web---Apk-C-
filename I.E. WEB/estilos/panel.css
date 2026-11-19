@@ -1,0 +1,983 @@
+/* 🌟 ESTILOS ESPECÍFICOS DEL PANEL - DISEÑO INSTITUCIONAL */
+
+.layout {
+    display: grid;
+    /* minmax(0, 1fr): evita que tablas anchas desborden la columna central */
+    grid-template-columns: 280px minmax(0, 1fr) 310px;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1680px;
+    margin: 0 auto;
+    min-height: calc(100vh - 80px);
+    align-items: start;
+}
+
+/* 📁 BARRAS LATERALES */
+.barra {
+    background: var(--sidebar-bg);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--sombra-sm);
+    height: fit-content;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.escudo-liceo {
+    display: block;
+    width: 68px;
+    height: auto;
+    margin: 0 auto 12px;
+}
+
+.brand-bar {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.barra h2, .barra-subtitulo {
+    font-size: 0.85rem;
+    color: var(--primary-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 8px 0 16px 0;
+    border-bottom: 2px solid var(--sky-light);
+    padding-bottom: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.barra h2:first-child, .barra-subtitulo:first-child {
+    margin-top: 0;
+}
+
+/* 🖥 CONTENIDO CENTRAL */
+.contenido {
+    background: transparent;
+    padding: 0 10px;
+}
+
+/* BANNER DE BIENVENIDA */
+.welcome-banner {
+    background: var(--gradiente-primario);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--sombra-lg);
+    margin-bottom: 25px;
+}
+
+.welcome-banner h1 {
+    margin: 0 0 8px 0;
+    font-size: 2.2rem;
+    font-weight: 800;
+}
+
+.welcome-banner p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+.badge-role {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+    backdrop-filter: blur(5px);
+}
+
+/* 📢 ZONA DE COMUNICADOS */
+.announcement-box {
+    background: #ffffff;
+    border-left: 5px solid var(--primary-sky);
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 30px;
+    box-shadow: var(--sombra-md);
+    border: 1px solid var(--border-color);
+    border-left-width: 5px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.announcement-icon {
+    font-size: 1.8rem;
+    background: var(--sky-light);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.announcement-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+}
+
+.announcement-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* 👥 GRUPOS DE ACCESO */
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.group-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.04);
+    transition: var(--transition-smooth);
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-xl);
+    border-color: var(--primary-sky);
+}
+
+.group-card h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-dark);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.group-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.group-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.group-link-btn {
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.group-link-btn:hover {
+    background: var(--primary-sky);
+    color: white;
+}
+
+/* 🏛️ DIRECTORIO Y SERVICIOS INSTITUCIONALES */
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 35px 0 20px 0;
+    border-bottom: 2px solid var(--sky-light);
+    padding-bottom: 8px;
+}
+
+.modulos-titulo {
+    font-size: 1.3rem;
+    color: var(--primary-dark);
+    margin: 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.modulos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.modulo-icon-box {
+    font-size: 1.5rem;
+    background: var(--sky-light);
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.tarjeta-modulo:hover .modulo-icon-box {
+    transform: scale(1.1);
+    background: var(--primary-sky);
+}
+
+.modulo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* 📋 ESTILOS DE LA BARRA DERECHA PERSONALIZADA */
+.barra-utilidad {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.widget-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.03);
+}
+
+.widget-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.88rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.widget-card p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+/* Botones pequeños de accesos rápidos */
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    transition: var(--transition-smooth);
+}
+
+.quick-action-btn:hover {
+    background: var(--primary-sky);
+    color: white;
+}
+
+/* Lista de incidentes */
+.incident-item {
+    font-size: 0.8rem;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+}
+
+.incident-item:last-child {
+    border-bottom: none;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.72rem;
+}
+
+/* Mini Calendario / Agenda */
+.agenda-event {
+    background: var(--sky-light);
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid var(--primary-sky);
+}
+
+.agenda-event strong {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--primary-dark);
+}
+
+.agenda-event span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Clima local */
+.weather-box {
+    background: var(--gradiente-primario);
+    color: white;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.weather-info h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.weather-info p {
+    margin: 2px 0 0 0;
+    font-size: 0.75rem;
+    opacity: 0.9;
+    color: white !important;
+}
+
+.weather-icon {
+    font-size: 2rem;
+}
+
+/* Pie de página global */
+.pie-global {
+    background: white;
+    border-top: 1px solid var(--border-color);
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+}
+
+.pie-global a {
+    color: var(--primary-sky);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.pie-global a:hover {
+    text-decoration: underline;
+}
+
+/* Componentes adicionales */
+.resumen-diario {
+    background: var(--sky-light);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sky);
+    margin-bottom: 25px;
+}
+
+.resumen-diario h3 {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.resumen-diario p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.info-panel {
+    background: var(--sky-light);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sky);
+    margin-bottom: 20px;
+}
+
+.info-panel h3 {
+    color: var(--primary-dark);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.info-panel p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.exportar-panel {
+    background: var(--sky-light);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-sky);
+    margin-bottom: 25px;
+}
+
+.exportar-panel h3 {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.exportar-panel p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.exportar-opciones {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Ocultar elementos */
+.oculto {
+    display: none !important;
+}
+
+/* =====================================================
+   COMPONENTES COMPARTIDOS (todas las páginas internas)
+   ===================================================== */
+
+/* Barras laterales: se quedan visibles al hacer scroll y son más compactas */
+.barra-izquierda,
+.barra-utilidad {
+    position: sticky;
+    top: 24px;
+}
+
+.barra-izquierda .btn-funcional,
+.barra-izquierda .btn-modulo {
+    margin-bottom: 0 !important;
+    padding: 9px 14px;
+    font-size: 0.88rem;
+    border-width: 1px !important;
+}
+
+.barra-izquierda .barra-subtitulo {
+    margin-top: 22px;
+}
+
+/* Tarjetas de resumen dentro del contenido (45 Atenciones, 98% Resueltos…) */
+.resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.resumen-card {
+    background: var(--sky-light);
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--primary-sky);
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+
+.resumen-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-xl);
+}
+
+.resumen-card .valor {
+    margin: 0 0 4px;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--primary-dark);
+}
+
+.resumen-card .label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.resumen-card.verde {
+    background: var(--verde-claro);
+    border-color: #a7f3d0;
+    border-top-color: var(--verde);
+}
+.resumen-card.verde .valor { color: #047857; }
+
+.resumen-card.rojo {
+    background: var(--rojo-claro);
+    border-color: #fecaca;
+    border-top-color: var(--rojo);
+}
+.resumen-card.rojo .valor { color: #b91c1c; }
+
+.resumen-card.amarillo {
+    background: var(--amarillo-claro);
+    border-color: #fde68a;
+    border-top-color: var(--amarillo);
+}
+.resumen-card.amarillo .valor { color: #b45309; }
+
+/* Estadísticas compactas de la barra derecha (Asistencias) */
+.estadisticas-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.estadistica-card {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--sky-light);
+    border-left: 4px solid var(--primary-sky);
+}
+
+.estadistica-card h3 {
+    margin: 0;
+    min-width: 2ch;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+.estadistica-card p {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.estadistica-card.verde { background: var(--verde-claro); border-left-color: var(--verde); }
+.estadistica-card.verde h3 { color: #047857; }
+.estadistica-card.amarillo { background: var(--amarillo-claro); border-left-color: var(--amarillo); }
+.estadistica-card.amarillo h3 { color: #b45309; }
+.estadistica-card.rojo { background: var(--rojo-claro); border-left-color: var(--rojo); }
+.estadistica-card.rojo h3 { color: #b91c1c; }
+
+/* Mensajes de estado vacíos: no mostrar barras de color sin texto */
+.estado-wrap p:empty,
+.estado-alumnos:empty,
+.estado-auditoria:empty {
+    display: none;
+}
+
+.estado-wrap:not(:has(p:not(:empty))) {
+    display: none;
+}
+
+/* Etiquetas de estado (Asignada, Mantenimiento, Operativo…) */
+.estado-ok,
+.estado-alerta,
+.estado-error {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.estado-ok { background: var(--verde-claro); color: #047857; }
+.estado-alerta { background: var(--amarillo-claro); color: #b45309; }
+.estado-error { background: var(--rojo-claro); color: #b91c1c; }
+
+/* Botones dentro de tablas (Editar / Eliminar) */
+.btn-tabla {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.btn-tabla + .btn-tabla {
+    margin-left: 6px;
+}
+
+.btn-tabla.editar {
+    background: var(--sky-light);
+    color: var(--primary-dark);
+    border-color: var(--border-color);
+}
+
+.btn-tabla.editar:hover {
+    background: var(--primary-sky);
+    border-color: var(--primary-sky);
+    color: #ffffff;
+}
+
+.btn-tabla.eliminar {
+    background: var(--rojo-claro);
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.btn-tabla.eliminar:hover {
+    background: var(--rojo);
+    border-color: var(--rojo);
+    color: #ffffff;
+}
+
+.celda-acciones {
+    white-space: nowrap;
+}
+
+/* Tabla de movimientos (Reportes y Auditoría) */
+.celda-usuario {
+    font-weight: 600;
+}
+
+.etiqueta-cargo {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--sky-light);
+    color: var(--primary-dark);
+}
+
+.etiqueta-cargo.cargo-director { background: #fef3c7; color: #b45309; }
+.etiqueta-cargo.cargo-subdirector { background: #dbeafe; color: #1d4ed8; }
+.etiqueta-cargo.cargo-apafa { background: #dcfce7; color: #15803d; }
+.etiqueta-cargo.cargo-docente { background: #f3e8ff; color: #7e22ce; }
+.etiqueta-cargo.cargo-sub-docente { background: #cffafe; color: #0e7490; }
+.etiqueta-cargo.cargo-alumno { background: #e0f2fe; color: #0369a1; }
+.etiqueta-cargo.cargo-padre { background: #ffedd5; color: #c2410c; }
+
+.accion-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.leyenda-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.leyenda-punto {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Temas del foro */
+.tema-item {
+    transition: var(--transition-smooth);
+}
+
+.tema-item:hover {
+    background: var(--sky-light);
+}
+
+/* Filas de filtros consecutivas: separación entre ellas */
+.filtros-grid + .filtros-grid {
+    margin-top: 15px;
+}
+
+/* Pie de página: que se acomode cuando falta espacio */
+.pie-global {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+    /* el separador "|" queda suelto cuando el pie se parte en varias líneas */
+    .pie-global > span:nth-child(2) {
+        display: none;
+    }
+
+    .pie-global {
+        gap: 8px 14px;
+        padding: 16px;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+/* Tablet / laptop pequeña: menú + contenido, y la barra derecha pasa abajo */
+@media (max-width: 1200px) {
+    .layout {
+        grid-template-columns: 250px minmax(0, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .barra-utilidad {
+        grid-column: 1 / -1;
+        position: static;
+        max-height: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        align-items: start;
+        gap: 14px;
+    }
+
+    .barra-utilidad > h2 {
+        grid-column: 1 / -1;
+        margin: 6px 0 0;
+    }
+
+    .barra-utilidad .btn-salir {
+        grid-column: 1 / -1;
+        justify-self: start;
+        width: auto;
+        min-width: 200px;
+        margin-top: 6px;
+    }
+}
+
+/* Celular: una sola columna, primero el contenido y luego el menú */
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        padding: 14px;
+    }
+
+    .contenido {
+        order: 1;
+        padding: 0;
+    }
+
+    .barra-izquierda {
+        order: 2;
+        position: static;
+        max-height: none;
+    }
+
+    .barra-utilidad {
+        order: 3;
+    }
+
+    /* El menú lo dibuja el JS: dentro del <nav> van los títulos (h2) y los grupos (div).
+       El <nav> se queda en columna y solo cada grupo de botones se acomoda en fila. */
+    .barra-izquierda nav {
+        flex-direction: column !important;
+        flex-wrap: nowrap;
+    }
+
+    .barra-izquierda nav > div,
+    .barra-izquierda > div {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+    }
+
+    .barra-izquierda .btn-funcional,
+    .barra-izquierda .btn-modulo {
+        padding: 7px 12px;
+        font-size: 0.82rem;
+    }
+
+    .welcome-banner {
+        padding: 22px 20px;
+        border-radius: 16px;
+    }
+
+    .welcome-banner h1 {
+        font-size: 1.6rem;
+    }
+
+    .welcome-banner p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .layout {
+        padding: 10px;
+    }
+
+    .barra {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .welcome-banner h1 {
+        font-size: 1.4rem;
+    }
+}
+
+/* Tablas sueltas dentro de una sección: se deslizan en pantallas pequeñas */
+.tabla-scroll {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.tabla-scroll > .modulo-table {
+    min-width: 600px;
+}
+
+/* =====================================================
+   AJUSTES DE ORDEN Y ACABADO
+   ===================================================== */
+
+/* Barras laterales: scroll delgado y discreto (en Windows el predeterminado es muy grueso) */
+.barra {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-sky) transparent;
+}
+
+.barra::-webkit-scrollbar {
+    width: 6px;
+}
+
+.barra::-webkit-scrollbar-thumb {
+    background: var(--primary-sky);
+    border-radius: 6px;
+}
+
+/* Cuadros de estado: si no tienen texto no deben verse como una barra vacía */
+.estado-wrap p:empty,
+.estado-alumnos:empty,
+#estadoAsistencia:empty,
+#resumenFiltrado:empty {
+    display: none;
+}
+
+.estado-wrap:not(:has(p:not(:empty))) {
+    display: none;
+}
+
+/* Título de sección con subtítulo a la derecha: que se acomode si no hay espacio */
+.section-header-flex {
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+/* Tablas con desplazamiento horizontal: que se note que se pueden deslizar */
+.tabla-scroll,
+.tabla-wrap,
+.tabla-modulo-wrap,
+.tabla-alumnos-wrap,
+.tabla-asistencias-wrap,
+.tabla-reportes-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-sky) var(--sky-light);
+}
+
+.tabla-scroll::-webkit-scrollbar,
+.tabla-wrap::-webkit-scrollbar,
+.tabla-modulo-wrap::-webkit-scrollbar,
+.tabla-alumnos-wrap::-webkit-scrollbar,
+.tabla-asistencias-wrap::-webkit-scrollbar,
+.tabla-reportes-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.tabla-scroll::-webkit-scrollbar-thumb,
+.tabla-wrap::-webkit-scrollbar-thumb,
+.tabla-modulo-wrap::-webkit-scrollbar-thumb,
+.tabla-alumnos-wrap::-webkit-scrollbar-thumb,
+.tabla-asistencias-wrap::-webkit-scrollbar-thumb,
+.tabla-reportes-wrap::-webkit-scrollbar-thumb {
+    background: var(--primary-sky);
+    border-radius: 8px;
+}
+
+.tabla-scroll::-webkit-scrollbar-track,
+.tabla-wrap::-webkit-scrollbar-track,
+.tabla-modulo-wrap::-webkit-scrollbar-track,
+.tabla-alumnos-wrap::-webkit-scrollbar-track,
+.tabla-asistencias-wrap::-webkit-scrollbar-track,
+.tabla-reportes-wrap::-webkit-scrollbar-track {
+    background: var(--sky-light);
+}
+
+/* Horarios: celdas compactas y la hora nunca se parte en varias líneas */
+.tabla-horario th,
+.tabla-horario td {
+    padding: 11px 10px;
+    font-size: 0.82rem;
+}
+
+.tabla-horario th:first-child,
+.tabla-horario td:first-child {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.tabla-scroll > .tabla-horario {
+    min-width: 560px;
+}
+
+/* Las barras laterales aprovechan todo el alto de la pantalla (así "Cerrar sesión" no queda escondido) */
+.barra-izquierda,
+.barra-utilidad {
+    max-height: calc(100vh - 48px);
+}
+
+@media (max-width: 1200px) {
+    .barra-utilidad {
+        max-height: none;
+    }
+}
+
+/* "Cerrar sesión" siempre visible al fondo de la barra, aunque la barra tenga que desplazarse */
+.barra .btn-salir {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    flex-shrink: 0;
+    background: #fff5f5;
+    box-shadow: 0 -8px 10px -4px var(--sidebar-bg, #fff);
+}

@@ -1,46 +1,69 @@
-const mysql = require("mysql2/promise");
-const config = require("./config");
+const { Pool, types } = require("pg");
 
-const pool = mysql.createPool({
-    host: config.db.host,
-    port: config.db.port,
-    user: config.db.user,
-    password: config.db.password,
-    database: config.db.database,
-    charset: "utf8mb4_unicode_ci",
-    waitForConnections: true,
-    connectionLimit: 10,
-    connectTimeout: 10000,
-    dateStrings: true
+// Las columnas DATE/TIMESTAMP llegan como texto 'YYYY-MM-DD[ HH:MM:SS]',
+// igual que con mysql2 + dateStrings (así no rompe el código existente).
+types.setTypeParser(1082, (v) => v); // date
+types.setTypeParser(1114, (v) => v); // timestamp
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    max: 10,
+    connectionTimeoutMillis: 10000
 });
 
-async function query(sql, params = []) {
-    const [rows] = await pool.execute(sql, params);
+// Traduce la sintaxis MySQL a PostgreSQL:
+//  - placeholders ? -> $1, $2... (respetando comillas simples)
+//  - CURDATE() -> CURRENT_DATE
+function traducir(sql) {
+    let out = "";
+    let n = 0;
+    let comilla = false;
+    for (let i = 0; i < sql.length; i++) {
+        const ch = sql[i];
+        if (ch === "'") comilla = !comilla;
+        if (ch === "?" && !comilla) {
+            n++;
+            out += "$" + n;
+        } else {
+            out += ch;
+        }
+    }
+    return out.replace(/CURDATE\s*\(\s*\)/gi, "CURRENT_DATE");
+}
+
+// Ejecuta en `q` (pool o client) y devuelve las filas con la misma
+// "forma" que devolvía mysql2: array de filas + .insertId/.affectedRows.
+async function ejecutar(q, sql, params = []) {
+    const texto = traducir(sql);
+    const esInsert = /^\s*insert\b/i.test(texto) && !/\breturning\b/i.test(texto);
+    const res = await q(esInsert ? `${texto} RETURNING id` : texto, params);
+    const rows = res.rows;
+    rows.affectedRows = res.rowCount ?? 0;
+    if (esInsert) rows.insertId = rows[0] ? rows[0].id : null;
     return rows;
 }
 
-// Ejecuta `fn` con un candado de MySQL. Sirve para que dos altas simultáneas no
-// se salten el límite de alumnos por aula (comprobar cupo + guardar es una sola operación).
+async function query(sql, params = []) {
+    return ejecutar((s, p) => pool.query(s, p), sql, params);
+}
+
+// Ejecuta `fn` con un candado consultivo de Postgres (equivalente a GET_LOCK).
+// Sirve para que dos altas simultáneas no se salten el límite de alumnos por aula.
 // `fn` recibe una función q(sql, params) que usa la misma conexión del candado.
 async function conCandado(nombre, fn) {
-    const conn = await pool.getConnection();
+    const client = await pool.connect();
     try {
-        const [[fila]] = await conn.query("SELECT GET_LOCK(?, 10) AS ok", [nombre]);
-        if (!fila.ok) {
-            const error = new Error("El aula está ocupada con otro registro, intenta de nuevo.");
-            error.status = 503;
-            throw error;
-        }
+        await client.query("SELECT pg_advisory_lock(hashtext($1))", [nombre]);
         try {
-            return await fn(async (sql, params = []) => {
-                const [rows] = await conn.execute(sql, params);
-                return rows;
-            });
+            return await fn(async (sql, params = []) =>
+                ejecutar((s, p) => client.query(s, p), sql, params)
+            );
         } finally {
-            await conn.query("SELECT RELEASE_LOCK(?)", [nombre]).catch(() => {});
+            await client.query("SELECT pg_advisory_unlock(hashtext($1))", [nombre]).catch(() => {});
         }
     } finally {
-        conn.release();
+        client.release();
     }
 }
 

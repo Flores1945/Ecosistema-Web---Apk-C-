@@ -61,6 +61,19 @@ function normalizarDatos(data) {
     return salida;
 }
 
+// Normaliza un celular peruano a formato internacional de solo dígitos con
+// código de país 51: "969 099 187", "+51 969099187", "0969099187" -> "51969099187".
+function normalizarTelefonoPe(telefono) {
+    let digitos = String(telefono || "").replace(/\D/g, "");
+    if (!digitos) return digitos;
+    if (digitos.startsWith("0051")) digitos = digitos.slice(4);
+    if (digitos.startsWith("51") && digitos.length === 11) return digitos;
+    if (digitos.startsWith("0")) digitos = digitos.slice(1);
+    if (/^9\d{8}$/.test(digitos)) return `51${digitos}`;
+    if (/^\d{9}$/.test(digitos)) return `51${digitos}`;
+    return digitos;
+}
+
 async function registrarAuditoria(query, req, { accion, tabla, registroId, anterior, nuevo }) {
     if (!req.usuario?.id) return;
     try {
@@ -82,4 +95,4 @@ async function registrarAuditoria(query, req, { accion, tabla, registroId, anter
     }
 }
 
-module.exports = { pick, splitNombreCompleto, normalizarDatos, jsonColumna, registrarAuditoria };
+module.exports = { pick, splitNombreCompleto, normalizarDatos, jsonColumna, registrarAuditoria, normalizarTelefonoPe };

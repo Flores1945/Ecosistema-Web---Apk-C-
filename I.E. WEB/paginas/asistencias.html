@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Asistencias - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../estilos/tema.css">
+    <link rel="stylesheet" href="../estilos/panel.css">
+    <link rel="stylesheet" href="../estilos/asistencias.css">
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+</head>
+<body data-pagina="asistencias">
+
+    <div class="layout">
+        <!-- BARRA LATERAL IZQUIERDA: Navegación Principal -->
+        <aside class="barra barra-izquierda">
+            <img src="../imagenes/escudo.png" alt="Escudo I.E. Liceo Trujillo" class="escudo-liceo">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional activo" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="contenido">
+            <!-- BANNER DE PÁGINA -->
+            <div class="welcome-banner">
+                <h1>📋 Registro de Asistencias</h1>
+                <p>Control diario de asistencia estudiantil</p>
+                <div class="badge-role">Sistema de Gestión Escolar</div>
+            </div>
+
+            <!-- BÚSQUEDA Y FILTROS -->
+            <div class="filtros-panel">
+                <h2>🔍 Búsqueda de alumnos</h2>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label for="buscarEstudiante">Nombre del alumno</label>
+                        <input type="text" id="buscarEstudiante" placeholder="Nombre o apellidos (puede ser parcial)...">
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroNivel">Nivel educativo</label>
+                        <select id="filtroNivel">
+                            <option value="">Todos</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="Secundaria">Secundaria</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroGrado">Grado</label>
+                        <select id="filtroGrado">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroSeccion">Sección</label>
+                        <select id="filtroSeccion">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label for="filtroFechaDesde">Fecha desde <small class="texto-ayuda">(solo para el Excel)</small></label>
+                        <input type="date" id="filtroFechaDesde">
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroFechaHasta">Fecha hasta <small class="texto-ayuda">(solo para el Excel)</small></label>
+                        <input type="date" id="filtroFechaHasta">
+                    </div>
+                </div>
+                <div class="filtros-acciones" id="bloqueExportacion">
+                    <button type="button" class="btn-funcional-inline" id="reporteDiarioBtn">📄 Reporte Diario</button>
+                    <button type="button" class="btn-funcional-inline" id="reporteMensualBtn">📅 Reporte Mensual</button>
+                </div>
+            </div>
+
+            <!-- PASE DE LISTA DEL AULA -->
+            <div class="filtros-panel" id="panelMarcarAula">
+                <h2>✔ Pase de lista del aula</h2>
+                <p class="texto-ayuda">Elige el aula con los filtros de arriba (Nivel + Grado + Sección). Aquí aparece la lista de alumnos para marcar su asistencia uno por uno o todos a la vez. También se refleja en la app móvil como "ya pasada lista".</p>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label for="marcarEstado">Marcar todos como</label>
+                        <select id="marcarEstado">
+                            <option value="Presente" selected>Presente</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Ausente">Ausente</option>
+                            <option value="Justificado">Justificado</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="marcarFecha">Fecha</label>
+                        <input type="date" id="marcarFecha">
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="marcarObservacion">Observación (opcional)</label>
+                        <input type="text" id="marcarObservacion" placeholder="Ej: salida pedagógica...">
+                    </div>
+                </div>
+                <div class="filtros-acciones">
+                    <button type="button" class="btn-funcional-inline" id="marcarAulaBtn">✔ Marcar todo el aula</button>
+                </div>
+                <div class="tabla-asistencias-wrap">
+                    <table class="tabla-asistencias">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Estudiante</th>
+                                <th>Turno</th>
+                                <th>Estado registrado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPaseListaBody"></tbody>
+                    </table>
+                </div>
+                <p id="estadoMarcarAula" class="estado-form"></p>
+            </div>
+
+<!-- ESTADO -->
+            <section class="estado-wrap">
+                <p id="estadoAsistencia"></p>
+            </section>
+
+        </main>
+
+        <!-- BARRA DERECHA -->
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">Estadísticas</h2>
+            <div class="filtro-grupo" style="margin-bottom:12px;">
+                <label for="statScope">Mostrar</label>
+                <select id="statScope">
+                    <option value="colegio">Todo el colegio</option>
+                    <option value="aula">Solo aula filtrada</option>
+                </select>
+            </div>
+            <div class="estadisticas-grid">
+                <div class="estadistica-card verde">
+                    <h3 id="statAsistencias">0</h3>
+                    <p>Asistencias</p>
+                </div>
+                <div class="estadistica-card amarillo">
+                    <h3 id="statTardanzas">0</h3>
+                    <p>Tardanzas</p>
+                </div>
+                <div class="estadistica-card rojo">
+                    <h3 id="statInasistencias">0</h3>
+                    <p>Inasistencias</p>
+                </div>
+            </div>
+
+            <h2>Accesos Rápidos</h2>
+            <div class="widget-card" style="padding: 10px;">
+                <a href="./alumnos.html" class="quick-action-btn">🎒 Ver Alumnos</a>
+                <a href="./justificaciones.html" class="quick-action-btn">📋 Justificaciones</a>
+                <a href="./reportes.html" class="quick-action-btn">📊 Reportes</a>
+            </div>
+
+            <h2>Información</h2>
+            <div class="widget-card">
+                <h3>💡 Tip</h3>
+                <p>Registra la asistencia diariamente para mantener el control de asistencia actualizado.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./alumnos.html">Alumnos</a>
+        <a href="./asistencias.html">Asistencias</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../scripts/asistencias.js"></script>
+</body>
+</html>

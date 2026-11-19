@@ -1,3 +1,5 @@
 node_modules/
 .env
 *.log
+firebase-key.json
+*-firebase-adminsdk-*.json

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Alumnos - I.E. Liceo Trujillo</title>
+    <link rel="stylesheet" href="../estilos/tema.css">
+    <link rel="stylesheet" href="../estilos/panel.css">
+    <link rel="stylesheet" href="../estilos/alumnos.css">
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="../scripts/vendor/qrcode.min.js"></script>
+</head>
+<body data-pagina="alumnos">
+
+    <div class="layout">
+        <!-- BARRA LATERAL IZQUIERDA: Navegación Principal -->
+        <aside class="barra barra-izquierda">
+            <img src="../imagenes/escudo.png" alt="Escudo I.E. Liceo Trujillo" class="escudo-liceo">
+            <p class="brand-bar">📍 I.E. Liceo Trujillo</p>
+
+            <h2>Navegación Principal</h2>
+            <nav class="nav-html" id="menuNavegacion" style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-funcional" href="./panel.html">🏠 Inicio</a>
+                <a class="btn-funcional" href="./asistencias.html">📋 Asistencias</a>
+                <a class="btn-funcional activo" href="./alumnos.html">🎒 Alumnos</a>
+                <a class="btn-funcional" href="./reportes.html">📊 Reportes</a>
+                <a class="btn-funcional" href="./registro.html" style="margin-bottom: 0;">⚙️ Registro Personal</a>
+            </nav>
+
+            <h2 class="barra-subtitulo">Académico</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./notas.html">📝 Notas</a>
+                <a class="btn-modulo" href="./boletas.html">📈 Boletas</a>
+                <a class="btn-modulo" href="./tareas.html">📚 Tareas</a>
+                <a class="btn-modulo" href="./tutoria.html" style="margin-bottom: 0;">🧠 Tutoría</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Institucional</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./calendario.html">📅 Calendario</a>
+                <a class="btn-modulo" href="./horarios.html">⏰ Horarios</a>
+                <a class="btn-modulo" href="./eventos.html">🎉 Eventos</a>
+                <a class="btn-modulo" href="./comunicados.html" style="margin-bottom: 0;">📢 Comunicados</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Administrativo</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./matriculas.html">🎓 Matrículas</a>
+                <a class="btn-modulo" href="./pagos.html">💳 Pagos</a>
+                <a class="btn-modulo" href="./inventario.html">📦 Inventario</a>
+                <a class="btn-modulo" href="./documentos.html" style="margin-bottom: 0;">📄 Documentos</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Servicios</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./biblioteca.html">📖 Biblioteca</a>
+                <a class="btn-modulo" href="./salud.html">🩹 Salud</a>
+                <a class="btn-modulo" href="./psicologia.html">🧠 Psicología</a>
+                <a class="btn-modulo" href="./aulas.html" style="margin-bottom: 0;">🏫 Aulas</a>
+            </div>
+
+            <h2 class="barra-subtitulo">Comunidad</h2>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a class="btn-modulo" href="./padres.html">👨‍👩‍👧 Padres (APAFA)</a>
+                <a class="btn-modulo" href="./justificaciones.html" style="margin-bottom: 0;">📋 Justificaciones</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="contenido">
+            <!-- BANNER DE PÁGINA -->
+            <div class="welcome-banner">
+                <h1>🎒 Registro de Alumnos</h1>
+                <p id="subtituloPagina">Gestión y consulta de estudiantes del plantel</p>
+                <div class="badge-role">Sistema de Gestión Escolar</div>
+            </div>
+
+            <!-- FORMULARIO DE REGISTRO -->
+            <div class="formulario-alumno" id="panelFormulario">
+                <h2 id="tituloFormulario">📝 Nuevo Alumno</h2>
+                <form id="formAlumno">
+                    <input type="hidden" id="alumnoId">
+
+                    <div class="formulario-grid">
+                        <div class="form-grupo">
+                            <label for="nombres">Nombres</label>
+                            <input type="text" id="nombres" required placeholder="Ej: Juan Carlos">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="apellidos">Apellidos</label>
+                            <input type="text" id="apellidos" required placeholder="Ej: Pérez López">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="sexo">Sexo</label>
+                            <select id="sexo" required>
+                                <option value="">Seleccionar</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="dni">DNI (7 dígitos)</label>
+                            <input type="text" id="dni" required placeholder="Ej: 1234567" maxlength="7" pattern="[0-9]{7}" title="Debe ser 7 dígitos numéricos">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="nivel">Nivel</label>
+                            <select id="nivel" required>
+                                <option value="">Seleccionar</option>
+                                <option value="Primaria">Primaria</option>
+                                <option value="Secundaria">Secundaria</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="grado">Grado</label>
+                            <select id="grado" required>
+                                <option value="">Selecciona nivel primero</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="seccion">Sección</label>
+                            <select id="seccion" required>
+                                <option value="">Selecciona nivel primero</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="turno">Turno (Automático)</label>
+                            <input type="text" id="turno" readonly style="background: var(--sky-light); cursor: not-allowed;">
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 12px 0 4px; font-size: 1rem;">Datos del apoderado</h3>
+                    <div class="formulario-grid">
+                        <div class="form-grupo">
+                            <label for="apoderadoNombres">Nombres *</label>
+                            <input type="text" id="apoderadoNombres" required placeholder="Ej: María">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="apoderadoApellidos">Apellidos *</label>
+                            <input type="text" id="apoderadoApellidos" required placeholder="Ej: García Ríos">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="apoderadoTelefono">Teléfono (WhatsApp) *</label>
+                            <input type="tel" id="apoderadoTelefono" required placeholder="Ej: 987654321">
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="apoderadoParentesco">Parentesco</label>
+                            <select id="apoderadoParentesco">
+                                <option value="Padre">Padre</option>
+                                <option value="Madre">Madre</option>
+                                <option value="Tutor">Tutor</option>
+                                <option value="Abuelo">Abuelo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="formulario-acciones">
+                        <button type="submit" class="btn-funcional-inline" id="guardarAlumnoBtn">Guardar Alumno</button>
+                        <button type="button" class="btn-secundario" id="limpiarFormBtn">Limpiar Formulario</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filtros-panel">
+                <h2>🔍 Filtrar Lista</h2>
+                <div class="filtros-grid">
+                    <div class="filtro-grupo">
+                        <label for="filtroNivel">Nivel</label>
+                        <select id="filtroNivel">
+                            <option value="">Todos</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="Secundaria">Secundaria</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroGrado">Grado</label>
+                        <select id="filtroGrado">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroSeccion">Sección</label>
+                        <select id="filtroSeccion">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filtro-grupo">
+                        <label for="filtroBusqueda">Buscar nombre</label>
+                        <input type="text" id="filtroBusqueda" placeholder="Nombre del alumno...">
+                    </div>
+                </div>
+                <div class="filtros-acciones" id="accionesLista">
+                    <button type="button" class="btn-funcional-inline" id="exportarListaBtn">📊 Exportar Excel</button>
+                    <button type="button" class="btn-secundario" id="cargarDemoAlumnosBtn">📝 Cargar Demo</button>
+                    <button type="button" class="btn-secundario" id="limpiarDemoAlumnosBtn">🗑️ Limpiar Demo</button>
+                </div>
+            </div>
+
+            <!-- MODAL PARA MOSTRAR QR -->
+            <div id="modalQR" class="modal-qr" style="display: none;">
+                <div class="modal-contenido">
+                    <div class="modal-header">
+                        <h3>📱 Código QR del Alumno</h3>
+                        <button class="modal-cerrar" id="cerrarModalQR">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="infoAlumnoQR"></div>
+                        <div id="codigoQR"></div>
+                        <button class="btn-funcional-inline btn-exito" id="descargarQRBtn">📥 Descargar QR</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA DE ALUMNOS -->
+            <div class="tabla-alumnos-wrap">
+                <table class="tabla-alumnos">
+                    <thead>
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Nivel</th>
+                            <th>Grado</th>
+                            <th>Sección</th>
+                            <th>Turno</th>
+                            <th>Tel. Apoderado</th>
+                            <th id="colAcciones">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaAlumnosBody"></tbody>
+                </table>
+            </div>
+
+            <p class="estado-alumnos" id="estadoAlumnos"></p>
+        </main>
+
+        <!-- BARRA DERECHA -->
+        <aside class="barra barra-utilidad">
+            <h2 style="margin-top: 0;">📊 Estadísticas</h2>
+            <div class="widget-card card-estadistica">
+                <div class="estadistica-icon">🎓</div>
+                <div class="estadistica-info">
+                    <h3 id="totalAlumnos">0</h3>
+                    <p>Alumnos registrados</p>
+                </div>
+            </div>
+
+            <h2>🔗 Accesos Rápidos</h2>
+            <div class="widget-card">
+                <a href="./notas.html" class="quick-action-btn">
+                    <span class="quick-icon">📝</span>
+                    <span>Ver Notas</span>
+                </a>
+                <a href="./asistencias.html" class="quick-action-btn">
+                    <span class="quick-icon">📋</span>
+                    <span>Ver Asistencias</span>
+                </a>
+                <a href="./matriculas.html" class="quick-action-btn">
+                    <span class="quick-icon">🎓</span>
+                    <span>Matricular Alumno</span>
+                </a>
+            </div>
+
+            <h2>💡 Ayuda</h2>
+            <div class="widget-card">
+                <p>Usa los filtros para buscar alumnos por nivel, grado o sección. El turno se asigna automáticamente.</p>
+            </div>
+
+            <button class="btn-funcional btn-salir" id="cerrarSesionBtn" type="button">Cerrar sesión</button>
+        </aside>
+    </div>
+
+    <footer class="pie-global">
+        <span>I.E. Liceo Trujillo · Todos los derechos reservados</span>
+        <span>|</span>
+        <a href="./panel.html">Panel</a>
+        <a href="./alumnos.html">Alumnos</a>
+        <a href="./asistencias.html">Asistencias</a>
+        <a href="./index.html">Login</a>
+    </footer>
+
+    <script type="module" src="../scripts/alumnos.js"></script>
+</body>
+</html>

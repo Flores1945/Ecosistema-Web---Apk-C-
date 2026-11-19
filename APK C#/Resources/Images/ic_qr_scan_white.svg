@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <path fill="#ffffff" d="M3,3 L9,3 L9,5 L5,5 L5,9 L3,9 Z" />
-  <path fill="#ffffff" d="M15,3 L21,3 L21,9 L19,9 L19,5 L15,5 Z" />
-  <path fill="#ffffff" d="M3,15 L5,15 L5,19 L9,19 L9,21 L3,21 Z" />
-  <path fill="#ffffff" d="M19,15 L21,15 L21,21 L15,21 L15,19 L19,19 Z" />
-  <path fill="#ffffff" d="M3,11.2 L21,11.2 L21,12.8 L3,12.8 Z" />
-</svg>
